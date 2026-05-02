@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Macro — The Story Behind The Numbers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,400;1,700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:      #faf8f3;
+  --bg2:     #f4f0e8;
+  --bg3:     #ede8dc;
+  --paper:   #fdfbf6;
+  --border:  #d8d2c4;
+  --border2: #c4bdb0;
+  --rule:    #2d2d2d;
+  --text:    #0f0f0f;
+  --text2:   #2d2d2d;
+  --text3:   #666;
+  --text4:   #aaa;
+  --accent:  #cc2200;
+  --accent2: #a81c00;
+  --green:   #1a6b5a;
+  --red:     #9a2a2a;
+  --blue:    #2a4a6b;
+  --gold:    #b8860b;
+  --ink:     #0f0f0f;
+  --mono:    'DM Mono', 'Courier New', monospace;
+  --sans:    'DM Sans', sans-serif;
+  --serif:   'Playfair Display', Georgia, serif;
+  --bserif:  'Source Serif 4', Georgia, serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--bserif);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────  MASTHEAD  ───────────────────────── */
+.masthead {
+  background: var(--bg);
+  border-bottom: 3px solid var(--ink);
+  padding: 0 36px;
+}
+
+.masthead-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.4px;
+}
+
+.masthead-top .left { display:flex; gap:18px; align-items:center; }
+.masthead-top .right { display:flex; gap:18px; align-items:center; }
+
+.live-dot {
+  width:6px; height:6px; background:var(--green); border-radius:50%;
+  display:inline-block; margin-right:6px; vertical-align:middle;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.live-label { color:var(--green); letter-spacing:1.5px; text-transform:uppercase; font-weight:500; }
+
+.clock { font-family: var(--mono); }
+
+.masthead-title {
+  text-align: center;
+  padding: 26px 0 18px;
+}
+
+.masthead-title h1 {
+  font-family: var(--serif);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.masthead-title h1 .ac { color: var(--accent); font-style: italic; font-weight:700; }
+
+.masthead-title .tag {
+  font-family: var(--bserif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text3);
+}
+
+.masthead-bottom {
+  border-top: 1px solid var(--border);
+  display:flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.nav-tab {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 14px 28px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─────────────────────────  SECTIONS  ───────────────────────── */
+.section { display:none; padding: 48px 36px 80px; max-width: 1100px; margin: 0 auto; }
+.section.active { display:block; }
+
+.section-header { margin-bottom: 36px; }
+.section-kicker {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+.section-dek {
+  font-family: var(--bserif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--text3);
+  max-width: 720px;
+}
+
+/* ─────────────────────────  STORY (Section 1)  ───────────────────────── */
+.story-meta {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 16px 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bullet {
+  display: flex;
+  gap: 28px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border);
+}
+.bullet:last-child { border-bottom: none; }
+
+.bullet-num {
+  font-family: var(--serif);
+  font-size: 56px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 0.9;
+  min-width: 80px;
+  letter-spacing: -2px;
+}
+
+.bullet-text {
+  font-family: var(--bserif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--text);
+  font-weight: 400;
+  flex: 1;
+}
+
+.bullet-text .nu {
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bullet-text .em { font-style: italic; color: var(--text2); }
+.bullet-text strong { font-weight: 700; color: var(--ink); }
+
+.story-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 2px solid var(--ink);
+  font-family: var(--bserif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text3);
+  text-align: center;
+}
+
+.story-empty {
+  padding: 60px 40px;
+  background: var(--bg2);
+  border: 1px dashed var(--border2);
+  text-align: center;
+  font-family: var(--bserif);
+  font-style: italic;
+  color: var(--text3);
+  margin-bottom: 20px;
+}
+.story-empty strong { color: var(--text); font-style: normal; }
+
+/* ─────────────────────────  METRICS (Section 2)  ───────────────────────── */
+.metric-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  transition: all 0.2s;
+}
+.metric-card:hover { border-color: var(--border2); }
+.metric-card.open { border-color: var(--ink); }
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 28px;
+  cursor: pointer;
+  gap: 24px;
+}
+
+.metric-titles { flex: 1; }
+
+.metric-kicker {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.metric-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+
+.metric-value-block {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.metric-value {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.metric-trend {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.trend-good { background: rgba(26,107,90,0.12); color: var(--green); }
+.trend-bad { background: rgba(154,42,42,0.12); color: var(--red); }
+.trend-neutral { background: var(--bg3); color: var(--text2); }
+
+.metric-toggle {
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--text3);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.metric-card.open .metric-toggle { transform: rotate(45deg); border-color: var(--ink); color: var(--ink); }
+
+.metric-body {
+  display: none;
+  padding: 0 28px 32px;
+  border-top: 1px solid var(--border);
+}
+.metric-card.open .metric-body { display: block; }
+
+.metric-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  padding-top: 28px;
+}
+
+.metric-block-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.metric-block-text {
+  font-family: var(--bserif);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.metric-block-text .nu { font-weight: 700; color: var(--accent); }
+
+.metric-chart-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  height: 240px;
+  position: relative;
+}
+
+@media (max-width: 800px) {
+  .metric-body-grid { grid-template-columns: 1fr; }
+  .metric-value-block { flex-direction: column-reverse; gap: 4px; align-items: flex-end; }
+  .metric-value { font-size: 22px; }
+}
+
+/* ─────────────────────────  NEWS (Section 3)  ───────────────────────── */
+.featured-news {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 56px;
+}
+
+.news-featured {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.news-featured:hover { border-color: var(--border2); }
+.news-featured.open { border-color: var(--ink); }
+
+.news-head {
+  padding: 24px 28px;
+  cursor: pointer;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.news-num {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  min-width: 40px;
+}
+
+.news-headline {
+  flex: 1;
+}
+
+.news-headline .src {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.news-headline .title {
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+}
+
+.news-toggle {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text3);
+  align-self: center;
+  width: 26px; height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+.news-featured.open .news-toggle { transform: rotate(45deg); border-color: var(--ink); color: var(--ink); }
+
+.news-body {
+  display: none;
+  padding: 0 28px 28px;
+  border-top: 1px solid var(--border);
+}
+.news-featured.open .news-body { display: block; }
+
+.impact-block {
+  padding-top: 22px;
+  margin-bottom: 18px;
+}
+
+.impact-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.impact-text {
+  font-family: var(--bserif);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.impact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.chip {
+  font-family: var(--sans);
+  font-size: 11px;
+  background: var(--bg3);
+  color: var(--text2);
+  padding: 4px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
+.news-link {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid var(--accent);
+  padding-bottom: 1px;
+}
+.news-link:hover { color: var(--accent2); }
+
+.news-list-section {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.news-list-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.news-row {
+  display: flex;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+.news-row .src {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  min-width: 130px;
+  font-weight: 500;
+}
+.news-row a {
+  font-family: var(--bserif);
+  font-size: 16px;
+  color: var(--text);
+  text-decoration: none;
+  flex: 1;
+  line-height: 1.4;
+}
+.news-row a:hover { color: var(--accent); }
+
+/* ─────────────────────────  LOADING  ───────────────────────── */
+.loading {
+  padding: 48px;
+  text-align: center;
+  font-family: var(--bserif);
+  font-style: italic;
+  color: var(--text3);
+}
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────  RESPONSIVE  ───────────────────────── */
+@media (max-width: 700px) {
+  .masthead { padding: 0 18px; }
+  .masthead-title h1 { font-size: 36px; }
+  .section { padding: 28px 18px 60px; }
+  .section-title { font-size: 30px; }
+  .bullet { gap: 16px; padding: 24px 0; }
+  .bullet-num { font-size: 36px; min-width: 50px; }
+  .bullet-text { font-size: 17px; }
+  .nav-tab { padding: 12px 14px; font-size: 10px; letter-spacing: 1.5px; }
+  .metric-head { padding: 16px 18px; gap: 12px; }
+  .metric-title { font-size: 17px; }
+  .metric-value { font-size: 22px; }
+  .metric-body { padding: 0 18px 24px; }
+  .metric-body-grid { gap: 24px; }
+  .news-head { padding: 18px; gap: 14px; }
+  .news-headline .title { font-size: 17px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────────  MASTHEAD  ───────────────────────── -->
+<header class="masthead">
+  <div class="masthead-top">
+    <div class="left">
+      <span><span class="live-dot"></span><span class="live-label">Live</span></span>
+      <span id="today-date">—</span>
+    </div>
+    <div class="right">
+      <span class="clock" id="clock">—</span>
+    </div>
+  </div>
+  <div class="masthead-title">
+    <h1>India <span class="ac">Macro</span></h1>
+    <div class="tag">The story behind the numbers — explained for everyone</div>
+  </div>
+  <nav class="masthead-bottom">
+    <button class="nav-tab active" data-section="story">The Story</button>
+    <button class="nav-tab" data-section="metrics">The Metrics</button>
+    <button class="nav-tab" data-section="news">The News</button>
+  </nav>
+</header>
+
+<!-- ─────────────────────────  SECTION 1 — STORY  ───────────────────────── -->
+<section class="section active" id="section-story">
+  <div class="section-header">
+    <div class="section-kicker">Where India Stands</div>
+    <h2 class="section-title">The economy in six bullets.</h2>
+    <p class="section-dek">Read this and you'll understand what's happening with India's economy right now — without the jargon. Every number is live; the explanations connect them together.</p>
+  </div>
+  <div class="story-meta">
+    <span>Last updated <span id="story-updated">—</span></span>
+    <span>Auto-refreshes from sheet</span>
+  </div>
+  <div id="story-bullets">
+    <div class="loading"><span class="spinner"></span>Reading the latest data…</div>
+  </div>
+  <div class="story-footer" id="story-footer"></div>
+</section>
+
+<!-- ─────────────────────────  SECTION 2 — METRICS  ───────────────────────── -->
+<section class="section" id="section-metrics">
+  <div class="section-header">
+    <div class="section-kicker">Behind the story</div>
+    <h2 class="section-title">The numbers, explained.</h2>
+    <p class="section-dek">Each card is one piece of the economy. Click to expand and see what the metric actually measures, what it's saying right now, and how it connects to everything else.</p>
+  </div>
+  <div id="metric-cards">
+    <div class="loading"><span class="spinner"></span>Building the metric cards…</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────  SECTION 3 — NEWS  ───────────────────────── -->
+<section class="section" id="section-news">
+  <div class="section-header">
+    <div class="section-kicker">Today's headlines, decoded</div>
+    <h2 class="section-title">What's breaking — and what it means.</h2>
+    <p class="section-dek">Featured items expand to show what happened, which metrics it touches, and how it fits the bigger story. The full news flow is at the bottom.</p>
+  </div>
+  <div class="featured-news" id="featured-news">
+    <div class="loading"><span class="spinner"></span>Loading news…</div>
+  </div>
+  <div class="news-list-section">
+    <div class="news-list-title">Full news flow</div>
+    <div id="news-list"></div>
+  </div>
+</section>
+
+<script>
+// ============================================================================
+// CONFIG
+// ============================================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbxZ3IEat6PHVoQZrTTweND9gn0AsDZnmrh8hLM2QX5NMJD1utOqSL7RehpU5A08kide/exec';
+
+const TABS = {
+  gdp:      'GDP_quarterly',
+  cpi:      'CPI_monthly',
+  trade:    'Trade_monthly',
+  rbi:      'RBI_policy',
+  pmi:      'PMI_monthly',
+  forex:    'Forex_weekly',
+  unemp:    'Unemployment_monthly',
+  news:     'News',
+  opinions: 'Opinions',
+  story:    'Story'   // NEW — Claude-generated narrative content
+};
+
+let DATA = {};   // raw sheet data
+let STORY = {};  // key-value lookup from Story tab
+let charts = {};
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+function get(row, ...names) {
+  for (const n of names) {
+    if (row[n] !== undefined && row[n] !== null && row[n] !== '') return row[n];
+  }
+  return null;
+}
+
+function num(v) {
+  if (v === null || v === undefined || v === '') return null;
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+
+// Excel serial date → JS Date (Apps Script may already convert; this handles fallback)
+function parseDate(v) {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  // Excel serial number?
+  if (typeof v === 'number' && v > 30000 && v < 60000) {
+    return new Date((v - 25569) * 86400 * 1000);
+  }
+  if (typeof v === 'string' && /^\d+(\.\d+)?$/.test(v)) {
+    const n = parseFloat(v);
+    if (n > 30000 && n < 60000) return new Date((n - 25569) * 86400 * 1000);
+  }
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function fmtMonth(d) {
+  if (!d) return '—';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2);
+}
+
+function fmtDateLong(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+}
+
+function highlightNumbers(text) {
+  if (!text) return '';
+  // Wrap any number-looking token (digits, %, decimals, comma-separated thousands) in .nu
+  return String(text).replace(
+    /(₹?[\d,]+\.?\d*\s*(%|bps|bn|trn|cr|lakh)?)/gi,
+    '<span class="nu">$1</span>'
+  );
+}
+
+function escapeHTML(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ============================================================================
+// CLOCK & DATE
+// ============================================================================
+function tick() {
+  const dateEl = document.getElementById('today-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const ist = new Date(new Date().toLocaleString('en-US', { timeZone:'Asia/Kolkata' }));
+  const h = String(ist.getHours()).padStart(2,'0');
+  const m = String(ist.getMinutes()).padStart(2,'0');
+  const s = String(ist.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} IST`;
+}
+setInterval(tick, 1000);
+tick();
+
+// ============================================================================
+// NAV
+// ============================================================================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('section-' + tab.dataset.section).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// ============================================================================
+// FETCH
+// ============================================================================
+async function fetchSheet(tabName) {
+  const res = await fetch(API_URL + '?sheet=' + encodeURIComponent(tabName));
+  if (!res.ok) throw new Error('fetch failed: ' + tabName);
+  return res.json();
+}
+
+async function fetchAll() {
+  try {
+    const tabKeys = Object.keys(TABS);
+    const results = await Promise.allSettled(tabKeys.map(k => fetchSheet(TABS[k])));
+    tabKeys.forEach((k, i) => {
+      DATA[k] = results[i].status === 'fulfilled' ? results[i].value : [];
+    });
+
+    // Convert Story tab (key-value) into lookup object
+    STORY = {};
+    (DATA.story || []).forEach(row => {
+      const key = get(row, 'Key', 'key');
+      const val = get(row, 'Value', 'value');
+      if (key) STORY[String(key).trim()] = val;
+    });
+
+    console.log('Data loaded:', Object.fromEntries(Object.entries(DATA).map(([k,v]) => [k, v.length])));
+    console.log('Story keys:', Object.keys(STORY));
+
+    renderStory();
+    renderMetrics();
+    renderNews();
+  } catch (e) {
+    console.error('Fetch error', e);
+    document.getElementById('story-bullets').innerHTML =
+      '<div class="story-empty">Could not reach the data sheet. Check the API URL or your internet connection.</div>';
+  }
+}
+
+// ============================================================================
+// LATEST VALUE EXTRACTORS
+// ============================================================================
+function latestCPI() {
+  const rows = DATA.cpi || [];
+  if (!rows.length) return null;
+  // Sort by date, take newest
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    headline: num(get(r, 'CPI_Headline', 'CPI Headline', 'Headline')),
+    food: num(get(r, 'Food', 'food')),
+    fuel: num(get(r, 'Fuel', 'fuel')),
+    core: num(get(r, 'Core', 'core'))
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[0] || null;
+}
+
+function prevCPI() {
+  const rows = DATA.cpi || [];
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    headline: num(get(r, 'CPI_Headline', 'CPI Headline'))
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[1] || null;
+}
+
+function latestGDP() {
+  const rows = DATA.gdp || [];
+  if (!rows.length) return null;
+  const last = rows[rows.length - 1];
+  return {
+    quarter: get(last, 'Quarter', 'quarter'),
+    growth: num(get(last, 'GDP_Growth_YoY_%', 'GDP_Growth_YoY', 'Growth', 'GDP_Growth_YoY_%')),
+    primary: num(get(last, 'Primary_%', 'Primary')),
+    secondary: num(get(last, 'Secondary_%', 'Secondary')),
+    tertiary: num(get(last, 'Tertiary_%', 'Tertiary'))
+  };
+}
+
+function prevGDP() {
+  const rows = DATA.gdp || [];
+  if (rows.length < 2) return null;
+  const r = rows[rows.length - 2];
+  return { growth: num(get(r, 'GDP_Growth_YoY_%', 'Growth')) };
+}
+
+function latestRBI() {
+  const rows = DATA.rbi || [];
+  if (!rows.length) return null;
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    repo: num(get(r, 'Repo_Rate', 'Repo Rate', 'Repo')),
+    crr: num(get(r, 'CRR', 'crr')),
+    stance: get(r, 'Stance', 'stance')
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[0] || null;
+}
+
+function latestTrade() {
+  const rows = DATA.trade || [];
+  if (!rows.length) return null;
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    exports: num(get(r, 'Exports_USD_Bn', 'Exports')),
+    imports: num(get(r, 'Imports_USD_Bn', 'Imports')),
+    balance: num(get(r, 'Trade_Balance_USD_Bn', 'Trade_Balance', 'Balance'))
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[0] || null;
+}
+
+function latestPMI() {
+  const rows = DATA.pmi || [];
+  if (!rows.length) return null;
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    mfg: num(get(r, 'Manufacturing_PMI', 'Manufacturing PMI', 'Manufacturing')),
+    svc: num(get(r, 'Services_PMI', 'Services PMI', 'Services'))
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[0] || null;
+}
+
+function latestForex() {
+  const rows = DATA.forex || [];
+  if (!rows.length) return null;
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    res: num(get(r, 'Forex_Reserves_USD_Bn', 'Forex_Reserves', 'Reserves')),
+    inr: num(get(r, 'USDINR', 'usdinr', 'INR'))
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[0] || null;
+}
+
+function latestUnemp() {
+  const rows = DATA.unemp || [];
+  if (!rows.length) return null;
+  const sorted = rows.map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    total: num(get(r, 'Unemployment_Rate_%', 'Unemployment_Rate', 'Total')),
+    urban: num(get(r, 'Urban_%', 'Urban')),
+    rural: num(get(r, 'Rural_%', 'Rural'))
+  })).filter(r => r.d).sort((a,b) => b.d - a.d);
+  return sorted[0] || null;
+}
+
+// ============================================================================
+// SECTION 1 — STORY RENDER
+// ============================================================================
+function renderStory() {
+  // Story tab last_updated
+  const updated = STORY.last_updated || STORY['Last_Updated'] || '';
+  document.getElementById('story-updated').textContent = updated || fmtDateLong(new Date());
+
+  const container = document.getElementById('story-bullets');
+  const footer = document.getElementById('story-footer');
+
+  // Try to use Claude-generated bullets from Story tab; fall back to data-derived defaults
+  let bullets = [];
+  for (let i = 1; i <= 8; i++) {
+    const v = STORY['s1_bullet_' + i];
+    if (v && String(v).trim()) bullets.push(String(v).trim());
+  }
+
+  if (bullets.length === 0) {
+    bullets = generateFallbackBullets();
+    footer.innerHTML = '<em>Showing auto-generated bullets from latest data. Add Claude-written narrative to the <strong>Story</strong> tab (keys: <code>s1_bullet_1</code> to <code>s1_bullet_6</code>) to replace these.</em>';
+  } else {
+    footer.innerHTML = '<em>Synthesis written by Claude based on the latest data. Stored in your sheet, refreshes on every page load.</em>';
+  }
+
+  container.innerHTML = bullets.map((b, i) => `
+    <div class="bullet">
+      <div class="bullet-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="bullet-text">${highlightNumbers(escapeHTML(b))}</div>
+    </div>
+  `).join('');
+}
+
+function generateFallbackBullets() {
+  const cpi = latestCPI();
+  const gdp = latestGDP();
+  const rbi = latestRBI();
+  const trade = latestTrade();
+  const pmi = latestPMI();
+  const fx = latestForex();
+  const un = latestUnemp();
+
+  const bullets = [];
+
+  if (cpi && cpi.headline != null) {
+    const where = cpi.headline < 4 ? 'comfortably below' : cpi.headline < 6 ? 'within' : 'above';
+    bullets.push(`Inflation is at ${cpi.headline.toFixed(1)}% — ${where} the RBI's 4% target — meaning everyday prices for food, fuel and household items are rising at this pace year-on-year.`);
+  }
+
+  if (gdp && gdp.growth != null) {
+    bullets.push(`The economy grew ${gdp.growth.toFixed(1)}% in ${gdp.quarter || 'the latest quarter'} — that's how much bigger India's total output became compared to the same quarter last year.`);
+  }
+
+  if (rbi && rbi.repo != null) {
+    bullets.push(`The RBI's policy rate sits at ${rbi.repo.toFixed(2)}% with a ${rbi.stance || 'neutral'} stance — this is what banks pay to borrow from RBI, and it filters down into your home loan and FD rates.`);
+  }
+
+  if (trade && trade.balance != null) {
+    bullets.push(`India's trade gap was ${Math.abs(trade.balance).toFixed(1)} billion USD last month — meaning the country imported that much more than it exported, which the rupee has to absorb.`);
+  }
+
+  if (pmi && pmi.mfg != null && pmi.svc != null) {
+    bullets.push(`Manufacturing PMI is ${pmi.mfg.toFixed(1)} and services PMI is ${pmi.svc.toFixed(1)} — both above the 50 line that separates growth from contraction, so businesses are still expanding.`);
+  }
+
+  if (fx && fx.inr != null) {
+    bullets.push(`The rupee trades near ${fx.inr.toFixed(2)} per dollar with reserves at ${fx.res ? fx.res.toFixed(0) : '—'} billion USD — that cushion is what RBI uses to defend the currency when global flows turn against India.`);
+  }
+
+  return bullets;
+}
+
+// ============================================================================
+// SECTION 2 — METRICS RENDER
+// ============================================================================
+const METRIC_CONFIG = [
+  {
+    id: 'cpi',
+    intuitive: 'How fast prices are rising for ordinary Indians',
+    kicker: 'CPI Inflation · Monthly',
+    measures: 'The pace at which the cost of a typical basket of goods (food, fuel, rent, services) goes up year-on-year. The RBI tries to keep this around 4%.',
+    getValue: () => {
+      const c = latestCPI();
+      return c && c.headline != null ? { value: c.headline.toFixed(2) + '%', raw: c.headline } : null;
+    },
+    getPrev: () => { const p = prevCPI(); return p ? p.headline : null; },
+    higherIsBad: true,
+    chart: () => buildCPIChart()
+  },
+  {
+    id: 'gdp',
+    intuitive: 'How fast the economy is expanding',
+    kicker: 'GDP Growth · Quarterly · YoY',
+    measures: 'The percentage by which India\'s total economic output (everything produced by farms, factories, and services) is bigger than the same quarter last year.',
+    getValue: () => {
+      const g = latestGDP();
+      return g && g.growth != null ? { value: g.growth.toFixed(1) + '%', raw: g.growth, sub: g.quarter } : null;
+    },
+    getPrev: () => { const p = prevGDP(); return p ? p.growth : null; },
+    higherIsBad: false,
+    chart: () => buildGDPChart()
+  },
+  {
+    id: 'rbi',
+    intuitive: 'What it costs banks to borrow from RBI',
+    kicker: 'Repo Rate · Set by Monetary Policy Committee',
+    measures: 'The interest rate at which the RBI lends short-term money to commercial banks. Every loan rate in the country — home loans, car loans, business loans — moves with this number.',
+    getValue: () => {
+      const r = latestRBI();
+      return r && r.repo != null ? { value: r.repo.toFixed(2) + '%', raw: r.repo, sub: r.stance } : null;
+    },
+    getPrev: () => null,
+    higherIsBad: null,
+    chart: () => buildRBIChart()
+  },
+  {
+    id: 'trade',
+    intuitive: 'Whether India sells more than it buys from the world',
+    kicker: 'Trade Balance · Monthly · USD Billion',
+    measures: 'Exports minus imports. A negative number (a deficit) means India is buying more from abroad than it sells — the gap has to be paid for in foreign currency.',
+    getValue: () => {
+      const t = latestTrade();
+      return t && t.balance != null ? { value: '$' + t.balance.toFixed(1) + 'B', raw: t.balance } : null;
+    },
+    getPrev: () => null,
+    higherIsBad: false,
+    chart: () => buildTradeChart()
+  },
+  {
+    id: 'pmi',
+    intuitive: 'Whether businesses are growing or shrinking',
+    kicker: 'Purchasing Managers\' Index · Monthly · 50 = Neutral',
+    measures: 'A monthly survey of business managers. Above 50 means more managers report expansion than contraction; below 50 means the opposite.',
+    getValue: () => {
+      const p = latestPMI();
+      if (!p || p.mfg == null) return null;
+      return { value: p.mfg.toFixed(1), raw: p.mfg, sub: 'Mfg · Svc ' + (p.svc != null ? p.svc.toFixed(1) : '—') };
+    },
+    getPrev: () => null,
+    higherIsBad: false,
+    chart: () => buildPMIChart()
+  },
+  {
+    id: 'forex',
+    intuitive: 'India\'s safety cushion of foreign currency',
+    kicker: 'Forex Reserves · Weekly · USD Billion',
+    measures: 'The total stockpile of dollars, euros and gold that the RBI holds. This is what India uses to pay for imports and defend the rupee when global markets get rough.',
+    getValue: () => {
+      const f = latestForex();
+      if (!f || f.res == null) return null;
+      return { value: '$' + f.res.toFixed(0) + 'B', raw: f.res, sub: f.inr ? '₹' + f.inr.toFixed(2) + '/$' : '' };
+    },
+    getPrev: () => null,
+    higherIsBad: false,
+    chart: () => buildForexChart()
+  },
+  {
+    id: 'unemp',
+    intuitive: 'How many Indians can\'t find work',
+    kicker: 'Unemployment Rate · Monthly · CMIE',
+    measures: 'The share of people who are looking for a job but cannot find one. India\'s rate moves between roughly 6% and 10% — much higher in cities than villages.',
+    getValue: () => {
+      const u = latestUnemp();
+      if (!u || u.total == null) return null;
+      return { value: u.total.toFixed(1) + '%', raw: u.total, sub: 'Urban ' + (u.urban != null ? u.urban.toFixed(1) + '%' : '—') };
+    },
+    getPrev: () => null,
+    higherIsBad: true,
+    chart: () => buildUnempChart()
+  }
+];
+
+function renderMetrics() {
+  const container = document.getElementById('metric-cards');
+  container.innerHTML = METRIC_CONFIG.map(m => {
+    const v = m.getValue();
+    if (!v) return ''; // skip if no data
+
+    const prev = m.getPrev();
+    let trendHTML = '';
+    if (prev != null && v.raw != null) {
+      const delta = v.raw - prev;
+      const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '→';
+      let cls = 'trend-neutral';
+      if (m.higherIsBad === true) cls = delta > 0 ? 'trend-bad' : 'trend-good';
+      if (m.higherIsBad === false) cls = delta > 0 ? 'trend-good' : 'trend-bad';
+      trendHTML = `<span class="metric-trend ${cls}">${arrow} ${Math.abs(delta).toFixed(2)}</span>`;
+    } else if (v.sub) {
+      trendHTML = `<span class="metric-trend trend-neutral">${escapeHTML(v.sub)}</span>`;
+    }
+
+    // Pull Claude-generated explanation from Story tab; fall back to "What this measures" only
+    const claudeNow = STORY['s2_' + m.id + '_now'] || '';
+    const claudeLink = STORY['s2_' + m.id + '_linkage'] || '';
+    const overrideTitle = STORY['s2_' + m.id + '_title'] || '';
+
+    return `
+      <div class="metric-card" data-metric="${m.id}">
+        <div class="metric-head" onclick="toggleMetric('${m.id}')">
+          <div class="metric-titles">
+            <div class="metric-kicker">${escapeHTML(m.kicker)}</div>
+            <div class="metric-title">${escapeHTML(overrideTitle || m.intuitive)}</div>
+          </div>
+          <div class="metric-value-block">
+            <div class="metric-value">${v.value}</div>
+            ${trendHTML}
+            <div class="metric-toggle">+</div>
+          </div>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-grid">
+            <div>
+              <div class="metric-block-label">What this measures</div>
+              <div class="metric-block-text">${escapeHTML(m.measures)}</div>
+
+              <div class="metric-block-label">What it's saying right now</div>
+              <div class="metric-block-text">
+                ${claudeNow ? highlightNumbers(escapeHTML(claudeNow))
+                            : '<em style="color:var(--text3)">Add Claude-written commentary to your Story tab using key <code>s2_' + m.id + '_now</code></em>'}
+              </div>
+
+              <div class="metric-block-label">How this connects</div>
+              <div class="metric-block-text">
+                ${claudeLink ? highlightNumbers(escapeHTML(claudeLink))
+                             : '<em style="color:var(--text3)">Add to Story tab: <code>s2_' + m.id + '_linkage</code></em>'}
+              </div>
+            </div>
+            <div>
+              <div class="metric-chart-wrap"><canvas id="chart-${m.id}"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleMetric(id) {
+  const card = document.querySelector(`.metric-card[data-metric="${id}"]`);
+  const wasOpen = card.classList.contains('open');
+  card.classList.toggle('open');
+  if (!wasOpen) {
+    setTimeout(() => {
+      const conf = METRIC_CONFIG.find(m => m.id === id);
+      if (conf && !charts[id]) conf.chart();
+    }, 50);
+  }
+}
+
+// ============================================================================
+// CHARTS
+// ============================================================================
+const chartBase = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0f0f0f', titleFont: { family: 'DM Sans', size: 11 }, bodyFont: { family: 'DM Mono', size: 11 }, padding: 8 } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#666', maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
+    y: { grid: { color: '#ede8dc' }, ticks: { font: { family: 'DM Mono', size: 10 }, color: '#666' } }
+  }
+};
+
+function buildCPIChart() {
+  const rows = (DATA.cpi || []).map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    h: num(get(r, 'CPI_Headline', 'CPI Headline'))
+  })).filter(r => r.d && r.h != null).sort((a,b) => a.d - b.d).slice(-18);
+
+  charts.cpi = new Chart(document.getElementById('chart-cpi'), {
+    type: 'line',
+    data: { labels: rows.map(r => fmtMonth(r.d)), datasets: [{ data: rows.map(r => r.h), borderColor: '#cc2200', backgroundColor: 'rgba(204,34,0,0.08)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 0 }] },
+    options: chartBase
+  });
+}
+
+function buildGDPChart() {
+  const rows = (DATA.gdp || []).map(r => ({
+    q: get(r, 'Quarter', 'quarter'),
+    g: num(get(r, 'GDP_Growth_YoY_%', 'Growth'))
+  })).filter(r => r.q && r.g != null).slice(-12);
+
+  charts.gdp = new Chart(document.getElementById('chart-gdp'), {
+    type: 'bar',
+    data: { labels: rows.map(r => r.q), datasets: [{ data: rows.map(r => r.g), backgroundColor: '#1a6b5a', borderRadius: 0 }] },
+    options: chartBase
+  });
+}
+
+function buildRBIChart() {
+  const rows = (DATA.rbi || []).map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    repo: num(get(r, 'Repo_Rate', 'Repo'))
+  })).filter(r => r.d && r.repo != null).sort((a,b) => a.d - b.d);
+
+  charts.rbi = new Chart(document.getElementById('chart-rbi'), {
+    type: 'line',
+    data: { labels: rows.map(r => fmtMonth(r.d)), datasets: [{ data: rows.map(r => r.repo), borderColor: '#2a4a6b', backgroundColor: 'rgba(42,74,107,0.08)', borderWidth: 2, stepped: true, fill: true, pointRadius: 0 }] },
+    options: chartBase
+  });
+}
+
+function buildTradeChart() {
+  const rows = (DATA.trade || []).map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    b: num(get(r, 'Trade_Balance_USD_Bn', 'Trade_Balance', 'Balance'))
+  })).filter(r => r.d && r.b != null).sort((a,b) => a.d - b.d).slice(-18);
+
+  charts.trade = new Chart(document.getElementById('chart-trade'), {
+    type: 'bar',
+    data: { labels: rows.map(r => fmtMonth(r.d)), datasets: [{ data: rows.map(r => r.b), backgroundColor: rows.map(r => r.b < 0 ? '#9a2a2a' : '#1a6b5a') }] },
+    options: chartBase
+  });
+}
+
+function buildPMIChart() {
+  const rows = (DATA.pmi || []).map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    m: num(get(r, 'Manufacturing_PMI', 'Manufacturing')),
+    s: num(get(r, 'Services_PMI', 'Services'))
+  })).filter(r => r.d).sort((a,b) => a.d - b.d).slice(-18);
+
+  charts.pmi = new Chart(document.getElementById('chart-pmi'), {
+    type: 'line',
+    data: {
+      labels: rows.map(r => fmtMonth(r.d)),
+      datasets: [
+        { label: 'Mfg', data: rows.map(r => r.m), borderColor: '#cc2200', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+        { label: 'Svc', data: rows.map(r => r.s), borderColor: '#2a4a6b', borderWidth: 2, tension: 0.3, pointRadius: 0 }
+      ]
+    },
+    options: { ...chartBase, plugins: { ...chartBase.plugins, legend: { display: true, labels: { font:{family:'DM Mono', size:10}, boxWidth:8 } } } }
+  });
+}
+
+function buildForexChart() {
+  const rows = (DATA.forex || []).map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    res: num(get(r, 'Forex_Reserves_USD_Bn', 'Reserves'))
+  })).filter(r => r.d && r.res != null).sort((a,b) => a.d - b.d).slice(-26);
+
+  charts.forex = new Chart(document.getElementById('chart-forex'), {
+    type: 'line',
+    data: { labels: rows.map(r => fmtMonth(r.d)), datasets: [{ data: rows.map(r => r.res), borderColor: '#b8860b', backgroundColor: 'rgba(184,134,11,0.08)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 0 }] },
+    options: chartBase
+  });
+}
+
+function buildUnempChart() {
+  const rows = (DATA.unemp || []).map(r => ({
+    d: parseDate(get(r, 'Date', 'date')),
+    u: num(get(r, 'Unemployment_Rate_%', 'Total'))
+  })).filter(r => r.d && r.u != null).sort((a,b) => a.d - b.d).slice(-18);
+
+  charts.unemp = new Chart(document.getElementById('chart-unemp'), {
+    type: 'line',
+    data: { labels: rows.map(r => fmtMonth(r.d)), datasets: [{ data: rows.map(r => r.u), borderColor: '#5a3a7a', backgroundColor: 'rgba(90,58,122,0.08)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 0 }] },
+    options: chartBase
+  });
+}
+
+// ============================================================================
+// SECTION 3 — NEWS RENDER
+// ============================================================================
+function renderNews() {
+  const featuredEl = document.getElementById('featured-news');
+  const listEl = document.getElementById('news-list');
+
+  const newsRows = (DATA.news || []).map(r => ({
+    headline: get(r, 'Headline', 'headline'),
+    source:   get(r, 'Source', 'source'),
+    date:     parseDate(get(r, 'Date', 'date')),
+    link:     get(r, 'Link', 'link', 'URL')
+  })).filter(r => r.headline);
+
+  // Featured = first 5 entries that have an impact analysis in Story tab,
+  // OR fall back to the latest 5
+  const featured = [];
+  for (let i = 1; i <= 5; i++) {
+    const headline = STORY['s3_news_' + i + '_headline'];
+    if (headline) {
+      featured.push({
+        idx: i,
+        headline,
+        source: STORY['s3_news_' + i + '_source'] || '',
+        link: STORY['s3_news_' + i + '_link'] || '',
+        what: STORY['s3_news_' + i + '_what'],
+        metrics: STORY['s3_news_' + i + '_metrics'],
+        story: STORY['s3_news_' + i + '_story'],
+        watch: STORY['s3_news_' + i + '_watch']
+      });
+    }
+  }
+
+  if (featured.length === 0) {
+    // Fall back to first 5 news items with placeholder analysis
+    newsRows.slice(0, 5).forEach((n, i) => featured.push({
+      idx: i + 1,
+      headline: n.headline,
+      source: n.source,
+      link: n.link,
+      what: null, metrics: null, story: null, watch: null
+    }));
+  }
+
+  featuredEl.innerHTML = featured.length ? featured.map(n => `
+    <div class="news-featured" data-news="${n.idx}">
+      <div class="news-head" onclick="toggleNews(${n.idx})">
+        <div class="news-num">${String(n.idx).padStart(2,'0')}</div>
+        <div class="news-headline">
+          <div class="src">${escapeHTML(n.source || '—')}</div>
+          <div class="title">${escapeHTML(n.headline)}</div>
+        </div>
+        <div class="news-toggle">+</div>
+      </div>
+      <div class="news-body">
+        ${n.what ? `
+          <div class="impact-block">
+            <div class="impact-label">What happened</div>
+            <div class="impact-text">${highlightNumbers(escapeHTML(n.what))}</div>
+          </div>` : `<div class="impact-block"><div class="impact-label">What happened</div><div class="impact-text"><em style="color:var(--text3)">Add to Story tab: <code>s3_news_${n.idx}_what</code></em></div></div>`}
+        ${n.metrics ? `
+          <div class="impact-block">
+            <div class="impact-label">Metrics this hits</div>
+            <div class="impact-chips">${String(n.metrics).split(',').map(m => `<span class="chip">${escapeHTML(m.trim())}</span>`).join('')}</div>
+          </div>` : `<div class="impact-block"><div class="impact-label">Metrics this hits</div><div class="impact-text"><em style="color:var(--text3)">Add to Story tab: <code>s3_news_${n.idx}_metrics</code> (comma-separated, e.g. "CPI, Repo Rate")</em></div></div>`}
+        ${n.story ? `
+          <div class="impact-block">
+            <div class="impact-label">How this fits the bigger story</div>
+            <div class="impact-text">${highlightNumbers(escapeHTML(n.story))}</div>
+          </div>` : `<div class="impact-block"><div class="impact-label">How this fits the bigger story</div><div class="impact-text"><em style="color:var(--text3)">Add to Story tab: <code>s3_news_${n.idx}_story</code></em></div></div>`}
+        ${n.watch ? `
+          <div class="impact-block">
+            <div class="impact-label">What to watch next</div>
+            <div class="impact-text">${highlightNumbers(escapeHTML(n.watch))}</div>
+          </div>` : `<div class="impact-block"><div class="impact-label">What to watch next</div><div class="impact-text"><em style="color:var(--text3)">Add to Story tab: <code>s3_news_${n.idx}_watch</code></em></div></div>`}
+        ${n.link ? `<a class="news-link" href="${escapeHTML(n.link)}" target="_blank" rel="noopener">Read source →</a>` : ''}
+      </div>
+    </div>
+  `).join('') : '<div class="story-empty">No news yet. Your News tab is empty.</div>';
+
+  // Full news list below
+  listEl.innerHTML = newsRows.length ? newsRows.slice(0, 30).map(n => `
+    <div class="news-row">
+      <div class="src">${escapeHTML(n.source || '—')}</div>
+      <a href="${escapeHTML(n.link || '#')}" target="_blank" rel="noopener">${escapeHTML(n.headline)}</a>
+    </div>
+  `).join('') : '<div class="loading"><em>No items in News tab</em></div>';
+}
+
+function toggleNews(idx) {
+  const card = document.querySelector(`.news-featured[data-news="${idx}"]`);
+  if (card) card.classList.toggle('open');
+}
+
+// ============================================================================
+// BOOT
+// ============================================================================
+fetchAll();
+</script>
+
+</body>
+</html>
