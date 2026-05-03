@@ -11,6 +11,7 @@
   --bg:      #faf8f3;
   --bg2:     #f4f0e8;
   --bg3:     #ede8dc;
+  --paper:   #fdfbf6;
   --border:  #d8d2c4;
   --border2: #c4bdb0;
   --text:    #0f0f0f;
@@ -507,6 +508,32 @@ body {
 
 <!-- INFLATION SECTION -->
 <div class="section" id="section-inflation">
+
+  <!-- ₹100 TRACKER ─────────────────────────────────────── -->
+  <div style="background:linear-gradient(135deg, var(--paper) 0%, var(--bg2) 100%);border:1px solid var(--border);padding:28px 32px;margin-bottom:24px;">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px;">The ₹100 tracker</div>
+    <div style="font-family:var(--serif);font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.2;margin-bottom:18px;">What ₹100 buys you over time</div>
+    <div id="rupee100-tracker">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;padding:24px;">Computing erosion of buying power…</div>
+    </div>
+  </div>
+
+  <!-- PRIYA'S MONTHLY BUDGET ────────────────────────────── -->
+  <div style="margin-bottom:32px;">
+    <div style="margin-bottom:14px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">A real Indian's monthly bill</div>
+      <div style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.15;margin-bottom:6px;">Priya's monthly budget — and what inflation has done to it.</div>
+      <div style="font-family:var(--bserif,Georgia,serif);font-size:14px;color:var(--text3);font-style:italic;line-height:1.55;">Priya is 32, lives in Mumbai, works in software, has a home loan and a six-year-old. Here's what her life costs each month — now, a year ago, five years ago.</div>
+    </div>
+    <div id="priya-budget">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;padding:32px;background:var(--bg2);border:1px solid var(--border);">Loading Priya's basket…</div>
+    </div>
+  </div>
+
+  <!-- SALARY VS INFLATION GAP ─────────────────────────────── -->
+  <div id="salary-gap-block" style="margin-bottom:28px;"></div>
+
+  <!-- ─── EXISTING CPI CHART ─────────────────────────────── -->
   <div class="full-width panel">
     <div class="panel-header">
       <span class="panel-title">CPI INFLATION — ALL COMPONENTS</span>
@@ -803,7 +830,8 @@ const TABS = {
   config:   'Config',
   story:    'Story',
   assets:   'Asset_Returns',
-  commodities: 'Commodity_Returns'
+  commodities: 'Commodity_Returns',
+  col:      'Cost_Of_Living'
 };
 
 // ============================================================
@@ -882,7 +910,7 @@ async function fetchAll() {
   }
   try {
     console.log('Fetching from API:', API_URL);
-    const [gdp, cpi, trade, rbi, pmi, forex, usdinr, unemp, news, opinions, config, story, assets, commodities] = await Promise.allSettled([
+    const [gdp, cpi, trade, rbi, pmi, forex, usdinr, unemp, news, opinions, config, story, assets, commodities, col] = await Promise.allSettled([
       fetchSheet(TABS.gdp),
       fetchSheet(TABS.cpi),
       fetchSheet(TABS.trade),
@@ -896,7 +924,8 @@ async function fetchAll() {
       fetchSheet(TABS.config),
       fetchSheet(TABS.story),
       fetchSheet(TABS.assets),
-      fetchSheet(TABS.commodities)
+      fetchSheet(TABS.commodities),
+      fetchSheet(TABS.col)
     ]);
     DATA = {
       gdp: gdp.status === 'fulfilled' ? gdp.value : [],
@@ -913,6 +942,7 @@ async function fetchAll() {
       story: story.status === 'fulfilled' ? story.value : [],
       assets: assets.status === 'fulfilled' ? assets.value : [],
       commodities: commodities.status === 'fulfilled' ? commodities.value : [],
+      col: col.status === 'fulfilled' ? col.value : [],
     };
     // Log column names from first row of each tab to help debug
     Object.entries(DATA).forEach(([k,v]) => {
@@ -1171,6 +1201,9 @@ function renderAll() {
   _renderFeaturedNews();
   _renderAssetQuilt();
   _renderCommodityQuilt();
+  _renderRupee100();
+  _renderPriyaBudget();
+  _renderSalaryGap();
 }
 
 
@@ -2609,15 +2642,12 @@ function _renderQuilt(rows, containerId, opts) {
     return;
   }
 
-  // Debug — log first row to console so user can see what's coming through
   console.log('[' + containerId + '] First row sample:', rows[0]);
   console.log('[' + containerId + '] All keys:', Object.keys(rows[0] || {}));
 
-  // Try to find the year column by name first, then fall back to first column
   var firstRow = rows[0] || {};
   var allKeys = Object.keys(firstRow);
   var yearKeyName = null;
-  // Look for a column called "Year", "YEAR", "year", "Date", or anything containing "year"
   for (var i = 0; i < allKeys.length; i++) {
     var trimmed = allKeys[i].trim().toLowerCase();
     if (trimmed === 'year' || trimmed === 'date' || trimmed.indexOf('year') !== -1) {
@@ -2625,7 +2655,6 @@ function _renderQuilt(rows, containerId, opts) {
       break;
     }
   }
-  // Fallback: first column
   if (!yearKeyName) yearKeyName = allKeys[0];
   console.log('[' + containerId + '] Year column detected as:', yearKeyName);
 
@@ -2633,20 +2662,18 @@ function _renderQuilt(rows, containerId, opts) {
     var keys = Object.keys(r);
     var year = r[yearKeyName];
     if (year === null || year === undefined || year === '') return null;
-    // Convert to string and trim. Numbers like 2016 become "2016".
     year = String(year).trim();
     if (!year) return null;
 
     var pairs = [];
     keys.forEach(function(k) {
-      if (k === yearKeyName) return;  // skip the year column
+      if (k === yearKeyName) return;
       var v = r[k];
       if (v === null || v === undefined || v === '') return;
       var num = parseFloat(v);
       if (isNaN(num)) return;
       pairs.push({ name: String(k).trim(), value: num });
     });
-
     pairs.sort(function(a, b){ return b.value - a.value; });
     return { year: year, pairs: pairs };
   }).filter(function(x){ return x !== null && x.pairs.length > 0; });
@@ -2659,50 +2686,43 @@ function _renderQuilt(rows, containerId, opts) {
   console.log('[' + containerId + '] Rendered years:', renderedYears.map(function(y){ return y.year; }));
 
   var maxCols = Math.max.apply(null, renderedYears.map(function(y){ return y.pairs.length; }));
-  var yearColW = 56;
 
-  var html = '<table style="border-collapse:separate;border-spacing:0;font-family:var(--mono);font-size:10px;width:100%;min-width:900px;table-layout:fixed;">';
+  // Use CSS Grid for the layout — much more reliable than tables for fixed-width columns
+  // Year column = 64px, asset columns = equal flex
+  var gridTemplate = '64px repeat(' + maxCols + ', minmax(78px, 1fr))';
 
-  html += '<colgroup>';
-  html += '<col style="width:' + yearColW + 'px;">';
-  for (var c = 0; c < maxCols; c++) {
-    html += '<col>';
-  }
-  html += '</colgroup>';
+  var html = '<div style="display:grid;grid-template-columns:' + gridTemplate + ';gap:3px;background:var(--paper);font-family:var(--mono);font-size:10px;">';
 
-  // Header row
-  html += '<thead><tr>';
-  html += '<th style="background:transparent;border:none;padding:0;"></th>';
-  html += '<th colspan="' + maxCols + '" style="padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--border);">';
+  // Header row — empty corner cell + best/worst spanning all asset columns
+  html += '<div style="background:var(--paper);"></div>';
+  html += '<div style="grid-column: span ' + maxCols + ';padding:8px 12px;background:var(--bg2);">';
   html += '<div style="display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;font-weight:600;">';
   html += '<span style="color:var(--green);">Best</span>';
-  html += '<span style="flex:1;height:1px;background:var(--border);margin:0 16px;position:relative;"></span>';
+  html += '<span style="flex:1;height:1px;background:var(--border);margin:0 16px;"></span>';
   html += '<span style="color:var(--red);">Worst</span>';
   html += '</div>';
-  html += '</th>';
-  html += '</tr></thead>';
+  html += '</div>';
 
-  html += '<tbody>';
+  // Body — one row per year
   renderedYears.forEach(function(y) {
-    html += '<tr>';
-    html += '<td style="padding:0 6px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:11px;font-weight:600;text-align:center;letter-spacing:0.8px;border-right:3px solid var(--paper);border-bottom:3px solid var(--paper);vertical-align:middle;width:' + yearColW + 'px;min-width:' + yearColW + 'px;height:54px;">' + _escapeHtml(y.year) + '</td>';
+    // Year cell — bold black, year number visible in cream
+    html += '<div style="background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:12px;font-weight:700;text-align:center;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;min-height:54px;">' + _escapeHtml(y.year) + '</div>';
 
     y.pairs.forEach(function(p) {
       var col = _assetColor(p.name);
-      var cellStyle = 'padding:8px 6px;background:' + col.bg + ';color:' + col.text + ';text-align:center;border-right:3px solid var(--paper);border-bottom:3px solid var(--paper);line-height:1.2;vertical-align:middle;height:54px;';
-      html += '<td style="' + cellStyle + '">' +
-        '<div style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _escapeHtml(p.name) + '</div>' +
+      html += '<div style="background:' + col.bg + ';color:' + col.text + ';padding:8px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.2;">' +
+        '<div style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + _escapeHtml(p.name) + '</div>' +
         '<div style="font-family:var(--mono);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px;">' + _formatRet(p.value) + '</div>' +
-      '</td>';
+      '</div>';
     });
 
+    // Empty cells if needed
     for (var k = y.pairs.length; k < maxCols; k++) {
-      html += '<td style="background:var(--paper);border-right:3px solid var(--paper);border-bottom:3px solid var(--paper);"></td>';
+      html += '<div style="background:var(--paper);"></div>';
     }
-    html += '</tr>';
   });
-  html += '</tbody></table>';
 
+  html += '</div>';
   container.innerHTML = html;
 }
 
@@ -2751,6 +2771,270 @@ function _renderCommodityQuilt() {
         '</div>';
       }).join('') + '</div>';
   }
+}
+
+
+// ════════════════════════════════════════════════════════════
+// ₹100 TRACKER — what ₹100 buys you over time
+// Uses CPI YoY history to compute cumulative erosion
+// ════════════════════════════════════════════════════════════
+function _renderRupee100() {
+  var el = document.getElementById('rupee100-tracker');
+  if (!el) return;
+  var cpi = DATA.cpi || [];
+  if (!cpi.length) {
+    el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;padding:24px;">No CPI data yet</div>';
+    return;
+  }
+
+  // Helper — get headline CPI from a row
+  function getHeadline(r) {
+    var v = r['CPI_Headline'] || r['Headline'] || r['Inflation'] || Object.values(r)[1];
+    var n = parseFloat(v);
+    return isNaN(n) ? null : n;
+  }
+
+  // Average annual CPI for past N months
+  function avgPctLast(n) {
+    var slice = cpi.slice(-n);
+    var vals = slice.map(getHeadline).filter(function(x){ return x !== null; });
+    if (!vals.length) return null;
+    return vals.reduce(function(a,b){ return a+b; }, 0) / vals.length;
+  }
+
+  var avg1yr  = avgPctLast(12);
+  var avg5yr  = avgPctLast(60);
+  var avg10yr = avgPctLast(120);
+
+  // What ₹100 today was worth N years ago
+  // If average inflation was X% per year for N years, then
+  // ₹100 N years ago would be worth ₹100 * (1+X/100)^N today
+  // Equivalently: ₹100 today = ₹100 / (1+X/100)^N N-year-ago rupees
+  function valueOf100Today(avgPct, years) {
+    if (avgPct === null) return null;
+    return 100 / Math.pow(1 + avgPct/100, years);
+  }
+
+  var v1  = valueOf100Today(avg1yr, 1);
+  var v5  = valueOf100Today(avg5yr, 5);
+  var v10 = valueOf100Today(avg10yr, 10);
+
+  var thisYear = new Date().getFullYear();
+
+  function buildPanel(years, value, avgPct, year) {
+    if (value === null) return '';
+    var lost = (100 - value).toFixed(0);
+    var emoji = years === 1 ? '🛒' : years === 5 ? '📉' : '⏳';
+    return '<div style="flex:1;min-width:0;padding:20px 22px;background:var(--paper);border:1px solid var(--border);position:relative;">' +
+      '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:8px;">' +
+        years + ' YEAR' + (years > 1 ? 'S' : '') + ' AGO · ' + year +
+      '</div>' +
+      '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">' +
+        '<span style="font-family:var(--serif);font-size:36px;font-weight:700;color:var(--ink);letter-spacing:-1.5px;line-height:1;">₹' + value.toFixed(0) + '</span>' +
+        '<span style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;">today\'s buying power</span>' +
+      '</div>' +
+      '<div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text2);line-height:1.5;">₹100 then = <strong>₹' + value.toFixed(0) + '</strong> worth of stuff today. You\'ve lost <strong style="color:var(--accent);">₹' + lost + '</strong> of purchasing power per ₹100 to inflation averaging <strong>' + avgPct.toFixed(1) + '%</strong> a year.</div>' +
+    '</div>';
+  }
+
+  el.innerHTML =
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;">' +
+      buildPanel(1,  v1,  avg1yr,  thisYear - 1)  +
+      buildPanel(5,  v5,  avg5yr,  thisYear - 5)  +
+      buildPanel(10, v10, avg10yr, thisYear - 10) +
+    '</div>' +
+    '<div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;margin-top:14px;text-align:center;">Inflation is the slow tax nobody votes on. Headline CPI is the average; some categories — vegetables, education, healthcare — bite much harder.</div>';
+}
+
+// ════════════════════════════════════════════════════════════
+// PRIYA'S MONTHLY BUDGET — itemised cost-of-living breakdown
+// ════════════════════════════════════════════════════════════
+function _renderPriyaBudget() {
+  var el = document.getElementById('priya-budget');
+  if (!el) return;
+  var col = DATA.col || [];
+
+  if (!col.length) {
+    el.innerHTML =
+      '<div style="font-family:var(--bserif,Georgia,serif);font-size:14px;color:var(--text3);text-align:center;padding:32px;background:var(--bg2);border:1px dashed var(--border2);font-style:italic;">' +
+        '<strong style="color:var(--text);font-style:normal;font-family:var(--sans);">No basket data yet.</strong><br><br>' +
+        'Add a tab called <code style="background:var(--bg3);padding:1px 6px;font-family:var(--mono);font-size:11px;">Cost_Of_Living</code> with columns:<br>' +
+        '<code style="background:var(--bg3);padding:3px 8px;font-family:var(--mono);font-size:11px;display:inline-block;margin-top:8px;">Category | Item | Unit | Price_Now | Price_1yr_ago | Price_5yr_ago | Monthly_Qty | Note</code>' +
+      '</div>';
+    return;
+  }
+
+  // Group by category for visual hierarchy
+  var byCat = {};
+  var totalNow = 0, total1yr = 0, total5yr = 0;
+
+  col.forEach(function(r) {
+    var keys = Object.keys(r);
+    var cat  = String(r['Category']      || r[keys[0]] || 'Other').trim();
+    var item = String(r['Item']          || r[keys[1]] || '').trim();
+    var unit = String(r['Unit']          || r[keys[2]] || '').trim();
+    var pNow = parseFloat(r['Price_Now']     || r[keys[3]] || 0);
+    var p1yr = parseFloat(r['Price_1yr_ago'] || r[keys[4]] || 0);
+    var p5yr = parseFloat(r['Price_5yr_ago'] || r[keys[5]] || 0);
+    var qty  = parseFloat(r['Monthly_Qty']   || r[keys[6]] || 1);
+    var note = String(r['Note']              || r[keys[7]] || '').trim();
+    if (!item || isNaN(pNow)) return;
+
+    var monthlyNow = pNow * qty;
+    var monthly1yr = p1yr * qty;
+    var monthly5yr = p5yr * qty;
+    totalNow += monthlyNow;
+    total1yr += monthly1yr;
+    total5yr += monthly5yr;
+
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push({ item:item, unit:unit, pNow:pNow, p1yr:p1yr, p5yr:p5yr, qty:qty, note:note,
+                       mNow:monthlyNow, m1yr:monthly1yr, m5yr:monthly5yr });
+  });
+
+  function fmtINR(n) {
+    if (!isFinite(n)) return '—';
+    return '₹' + Math.round(n).toLocaleString('en-IN');
+  }
+  function fmtPct(now, then) {
+    if (!then || !isFinite(then) || then === 0) return '';
+    var p = ((now - then) / then) * 100;
+    var sign = p >= 0 ? '+' : '';
+    var col  = p > 5 ? 'var(--accent)' : p < 0 ? 'var(--green)' : 'var(--text3)';
+    return '<span style="font-family:var(--mono);font-size:11px;color:' + col + ';font-weight:600;font-variant-numeric:tabular-nums;">' + sign + p.toFixed(0) + '%</span>';
+  }
+
+  // Build table-like layout
+  var html = '<div style="background:var(--paper);border:1px solid var(--border);">';
+
+  // Header row
+  html += '<div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 0.8fr;gap:14px;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);font-weight:600;">' +
+    '<div>Item</div>' +
+    '<div style="text-align:right;">5yr ago</div>' +
+    '<div style="text-align:right;">1yr ago</div>' +
+    '<div style="text-align:right;">Today</div>' +
+    '<div style="text-align:right;">5yr Δ</div>' +
+  '</div>';
+
+  // Category-grouped rows
+  Object.keys(byCat).forEach(function(cat) {
+    // Category header band
+    html += '<div style="padding:10px 20px;background:var(--bg3);font-family:var(--mono);font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);font-weight:600;border-top:1px solid var(--border);">' + _escapeHtml(cat) + '</div>';
+    byCat[cat].forEach(function(b) {
+      var qtyLabel = b.qty > 1 ? ' × ' + b.qty : '';
+      html += '<div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 0.8fr;gap:14px;padding:11px 20px;border-top:1px solid var(--border);align-items:baseline;">' +
+        '<div>' +
+          '<div style="font-family:var(--bserif,Georgia,serif);font-size:14px;color:var(--text);font-weight:500;">' + _escapeHtml(b.item) + '</div>' +
+          '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;">' + _escapeHtml(b.unit) + qtyLabel + (b.note ? ' · ' + _escapeHtml(b.note) : '') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;font-family:var(--mono);font-size:13px;color:var(--text3);font-variant-numeric:tabular-nums;">' + fmtINR(b.m5yr) + '</div>' +
+        '<div style="text-align:right;font-family:var(--mono);font-size:13px;color:var(--text2);font-variant-numeric:tabular-nums;">' + fmtINR(b.m1yr) + '</div>' +
+        '<div style="text-align:right;font-family:var(--mono);font-size:14px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">' + fmtINR(b.mNow) + '</div>' +
+        '<div style="text-align:right;">' + fmtPct(b.mNow, b.m5yr) + '</div>' +
+      '</div>';
+    });
+  });
+
+  // Total row
+  var pct1 = total1yr ? ((totalNow - total1yr) / total1yr * 100) : 0;
+  var pct5 = total5yr ? ((totalNow - total5yr) / total5yr * 100) : 0;
+  html += '<div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 0.8fr;gap:14px;padding:18px 20px;background:var(--ink);color:var(--paper);border-top:2px solid var(--ink);align-items:baseline;">' +
+    '<div style="font-family:var(--serif);font-size:18px;font-weight:700;letter-spacing:-0.3px;">Priya\'s monthly total</div>' +
+    '<div style="text-align:right;font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;opacity:0.7;">' + fmtINR(total5yr) + '</div>' +
+    '<div style="text-align:right;font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;opacity:0.85;">' + fmtINR(total1yr) + '</div>' +
+    '<div style="text-align:right;font-family:var(--serif);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;">' + fmtINR(totalNow) + '</div>' +
+    '<div style="text-align:right;font-family:var(--mono);font-size:13px;font-weight:600;color:#ff8866;font-variant-numeric:tabular-nums;">+' + pct5.toFixed(0) + '%</div>' +
+  '</div>';
+
+  html += '</div>';
+
+  // The two-line summary
+  html +=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">' +
+      '<div style="padding:18px 20px;background:var(--paper);border-left:3px solid var(--accent);">' +
+        '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px;">vs 1 year ago</div>' +
+        '<div style="font-family:var(--bserif,Georgia,serif);font-size:14px;line-height:1.55;color:var(--text);">Priya\'s monthly bills are up <strong>' + pct1.toFixed(1) + '%</strong> in just twelve months. Headline CPI says inflation was about 4%. The gap is what averaging hides — services, education and housing all rose faster than the basket as a whole.</div>' +
+      '</div>' +
+      '<div style="padding:18px 20px;background:var(--paper);border-left:3px solid var(--accent);">' +
+        '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px;">vs 5 years ago</div>' +
+        '<div style="font-family:var(--bserif,Georgia,serif);font-size:14px;line-height:1.55;color:var(--text);">Same lifestyle, <strong>' + pct5.toFixed(0) + '%</strong> more expensive than in 2021. If Priya\'s salary hasn\'t grown at least that much over five years, she\'s effectively poorer than before — even with the same job and same paycheck on paper.</div>' +
+      '</div>' +
+    '</div>';
+
+  el.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════
+// SALARY VS INFLATION GAP — the real-pay-cut reality check
+// ════════════════════════════════════════════════════════════
+function _renderSalaryGap() {
+  var el = document.getElementById('salary-gap-block');
+  if (!el) return;
+
+  var STORY_KV = window.STORY_KV || {};
+  var salary1y = parseFloat(STORY_KV['priya_salary_growth_yoy']) || 8;
+  var salary5y = parseFloat(STORY_KV['priya_salary_growth_5yr']) || 45;
+
+  // Compute basket inflation if we have it
+  var col = DATA.col || [];
+  var totalNow = 0, total1yr = 0, total5yr = 0;
+  col.forEach(function(r) {
+    var keys = Object.keys(r);
+    var pNow = parseFloat(r['Price_Now']     || r[keys[3]] || 0);
+    var p1yr = parseFloat(r['Price_1yr_ago'] || r[keys[4]] || 0);
+    var p5yr = parseFloat(r['Price_5yr_ago'] || r[keys[5]] || 0);
+    var qty  = parseFloat(r['Monthly_Qty']   || r[keys[6]] || 1);
+    if (!isNaN(pNow)) {
+      totalNow += pNow * qty;
+      total1yr += p1yr * qty;
+      total5yr += p5yr * qty;
+    }
+  });
+
+  if (totalNow === 0) { el.innerHTML = ''; return; }
+
+  var inflation1y = ((totalNow - total1yr) / total1yr) * 100;
+  var inflation5y = ((totalNow - total5yr) / total5yr) * 100;
+  var realGain1y  = salary1y - inflation1y;
+  var realGain5y  = salary5y - inflation5y;
+
+  function rowHTML(label, salary, inflation, realGain) {
+    var realColor = realGain >= 0 ? 'var(--green)' : 'var(--accent)';
+    var realIcon  = realGain >= 0 ? '↑' : '↓';
+    var verdict   = realGain >= 2  ? 'Real raise.'
+                  : realGain >= 0  ? 'Barely keeping up.'
+                  : realGain >= -3 ? 'Quiet pay cut.'
+                                    : 'Steep real loss.';
+    return '<div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:18px;padding:18px 22px;align-items:center;border-top:1px solid var(--border);">' +
+      '<div style="font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600;">' + label + '</div>' +
+      '<div>' +
+        '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Salary growth</div>' +
+        '<div style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);">+' + salary.toFixed(1) + '%</div>' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Cost-of-living up</div>' +
+        '<div style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--accent);">+' + inflation.toFixed(1) + '%</div>' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Real change</div>' +
+        '<div style="display:flex;align-items:baseline;gap:8px;">' +
+          '<span style="font-family:var(--serif);font-size:22px;font-weight:700;color:' + realColor + ';">' + realIcon + ' ' + Math.abs(realGain).toFixed(1) + '%</span>' +
+          '<span style="font-family:var(--bserif,Georgia,serif);font-size:13px;font-style:italic;color:var(--text3);">' + verdict + '</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  el.innerHTML =
+    '<div style="background:var(--paper);border:1px solid var(--border);">' +
+      '<div style="padding:18px 22px;background:var(--bg2);">' +
+        '<div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">Reality check</div>' +
+        '<div style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-0.4px;line-height:1.2;">Did Priya\'s raise beat inflation?</div>' +
+        '<div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;margin-top:4px;">A raise that doesn\'t outpace the cost-of-living index is a quiet pay cut. Salary growth assumed: ' + salary1y.toFixed(1) + '% YoY, ' + salary5y.toFixed(0) + '% over 5 years. Override these in the Story tab using keys <code style="background:var(--bg3);padding:1px 5px;font-family:var(--mono);font-size:11px;">priya_salary_growth_yoy</code> and <code style="background:var(--bg3);padding:1px 5px;font-family:var(--mono);font-size:11px;">priya_salary_growth_5yr</code>.</div>' +
+      '</div>' +
+      rowHTML('1-YEAR VIEW', salary1y, inflation1y, realGain1y) +
+      rowHTML('5-YEAR VIEW', salary5y, inflation5y, realGain5y) +
+    '</div>';
 }
 </script>
 </body>
