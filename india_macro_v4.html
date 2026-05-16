@@ -369,6 +369,70 @@ body {
   .section { padding:20px; }
   .terminal-id { font-size:32px; }
 }
+
+.aa-risk-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: var(--paper);
+  color: var(--text3);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.aa-risk-btn:hover { color: var(--ink); border-color: var(--ink); }
+.aa-risk-btn.aa-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.aa-slice {
+  transition: opacity 0.2s, transform 0.2s;
+  transform-origin: 50% 50%;
+  cursor: pointer;
+}
+.aa-slice:hover { opacity: 0.85; }
+.aa-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.aa-row:last-child { border-bottom: none; }
+.aa-swatch { width: 12px; height: 12px; border-radius: 2px; }
+.aa-row-asset {
+  font-family: var(--bserif, Georgia, serif);
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.aa-row-rationale {
+  font-family: var(--bserif, Georgia, serif);
+  font-size: 12px;
+  color: var(--text3);
+  font-style: italic;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.aa-row-pct {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.aa-row-amt {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 1px;
+}
 </style>
 </head>
 <body>
@@ -394,12 +458,10 @@ body {
   <button class="nav-tab" onclick="showSection('inflation')">Inflation</button>
   <button class="nav-tab" onclick="showSection('growth')">Growth</button>
   <button class="nav-tab" onclick="showSection('external')">External Sector</button>
-  <button class="nav-tab" onclick="showSection('markets')">Markets</button>
   <button class="nav-tab" onclick="showSection('assets')">Asset Returns</button>
   <button class="nav-tab" onclick="showSection('news')">News</button>
   <button class="nav-tab" onclick="showSection('opinions')">Opinions</button>
-  <button class="nav-tab" onclick="showSection('story')">The Story</button>
-</div>
+  </div>
 
 <!-- TICKER -->
 <div class="ticker-bar">
@@ -451,45 +513,15 @@ body {
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">CPI INFLATION TREND</span>
-        <span class="panel-meta">MONTHLY · YOY %</span>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap"><canvas id="cpi-chart"></canvas></div>
-      </div>
+  <!-- WHAT CHANGED THIS MONTH ─────────────────────────── -->
+  <div style="margin-bottom:24px;">
+    <div style="margin-bottom:14px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">What changed this month</div>
+      <div style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.15;">The numbers that moved.</div>
+      <div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;margin-top:5px;">Month-on-month changes in the headline indicators — what got better, what got worse, what to actually pay attention to.</div>
     </div>
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">GDP GROWTH</span>
-        <span class="panel-meta">QUARTERLY · YOY %</span>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap"><canvas id="gdp-chart"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">PMI — ACTIVITY MONITOR</span>
-        <span class="panel-meta">MONTHLY · 50 = NEUTRAL</span>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap"><canvas id="pmi-chart"></canvas></div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">TRADE BALANCE</span>
-        <span class="panel-meta">MONTHLY · USD BN</span>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap"><canvas id="trade-chart"></canvas></div>
-      </div>
+    <div id="what-changed-block">
+      <div style="padding:24px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">Computing changes…</div>
     </div>
   </div>
 
@@ -546,24 +578,12 @@ body {
   <div class="two-col">
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">LATEST CPI DATA</span>
-        <span class="panel-meta">LAST 12 MONTHS</span>
-      </div>
-      <div class="panel-body" style="padding:0;">
-        <table class="data-table" id="cpi-table">
-          <thead><tr><th>MONTH</th><th>HEADLINE</th><th>FOOD</th><th>FUEL</th><th>CORE</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">
         <span class="panel-title">RBI MONETARY POLICY</span>
         <span class="panel-meta">MPC DECISIONS</span>
       </div>
       <div class="panel-body" style="padding:0;">
         <table class="data-table" id="rbi-table">
-          <thead><tr><th>DATE</th><th>REPO</th><th>CRR</th><th>STANCE</th></tr></thead>
+          <thead><tr><th>DATE</th><th>REPO</th><th>STANCE</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -609,6 +629,20 @@ body {
 
 <!-- EXTERNAL SECTION -->
 <div class="section" id="section-external">
+
+  <!-- DOLLAR PASSPORT ──────────────────────────────────── -->
+  <div style="margin-bottom:28px;">
+    <div style="margin-bottom:14px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">The dollar passport</div>
+      <div style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.15;margin-bottom:6px;">What ₹ buys you abroad — now vs five years ago.</div>
+      <div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;">Trade deficits and rupee weakness aren't abstractions. They're the difference between an MS abroad costing ₹50 lakh or ₹70 lakh.</div>
+    </div>
+    <div id="dollar-passport">
+      <div style="padding:24px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">Loading…</div>
+    </div>
+  </div>
+
+
   <div class="two-col">
     <div class="panel">
       <div class="panel-header">
@@ -621,7 +655,7 @@ body {
     </div>
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">FOREX RESERVES & USD/INR</span>
+        <span class="panel-title">FOREX RESERVES</span>
         <span class="panel-meta">WEEKLY</span>
       </div>
       <div class="panel-body">
@@ -629,49 +663,55 @@ body {
       </div>
     </div>
   </div>
-  <div class="full-width panel">
-    <div class="panel-header">
-      <span class="panel-title">TRADE DATA TABLE</span>
-      <span class="panel-meta">MONTHLY</span>
-    </div>
-    <div class="panel-body" style="padding:0;">
-      <table class="data-table" id="trade-table">
-        <thead><tr><th>MONTH</th><th>EXPORTS (USD BN)</th><th>IMPORTS (USD BN)</th><th>BALANCE (USD BN)</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-</div>
 
-<!-- MARKETS SECTION -->
-<div class="section" id="section-markets">
-  <div class="kpi-grid" style="grid-template-columns: repeat(3,1fr);" id="market-kpis">
-    <div class="loading" style="grid-column: span 3; height: 100px;">
-      <div>FETCHING MARKET DATA</div>
-      <div class="loading-bar"><div class="loading-progress"></div></div>
+  <!-- FOREIGN CURRENCIES — 2x2 individual charts -->
+  <div style="margin-top:16px;">
+    <div style="font-family:var(--sans);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:12px;">RUPEE VS MAJOR CURRENCIES · DAILY CLOSE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">USD / INR</span>
+          <span class="panel-meta">US DOLLAR</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chart-usd-inr"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">GBP / INR</span>
+          <span class="panel-meta">POUND STERLING</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chart-gbp-inr"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">EUR / INR</span>
+          <span class="panel-meta">EURO</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chart-eur-inr"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">JPY / INR</span>
+          <span class="panel-meta">JAPANESE YEN</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chart-jpy-inr"></canvas></div>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">PMI — MANUFACTURING & SERVICES</span>
-        <span class="panel-meta">MONTHLY · DIFFUSION INDEX</span>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap-tall"><canvas id="pmi-full-chart"></canvas></div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">USD/INR EXCHANGE RATE</span>
-        <span class="panel-meta">WEEKLY</span>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap-tall"><canvas id="usdinr-chart"></canvas></div>
-      </div>
-    </div>
   </div>
-</div>
 
 <!-- ASSET RETURNS SECTION -->
 <div class="section" id="section-assets">
@@ -681,6 +721,52 @@ body {
     <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">Asset returns</div>
     <div style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.15;margin-bottom:8px;">No asset wins every year. That's the point.</div>
     <div style="font-family:var(--bserif,Georgia,serif);font-size:14px;color:var(--text3);font-style:italic;line-height:1.55;max-width:820px;">Year-by-year performance of major Indian asset classes and global commodities. Notice how last year's winner is rarely next year's. The case for diversification, drawn in colour.</div>
+  </div>
+
+  <!-- ASSET ALLOCATION STRATEGY ─────────────────── -->
+  <div style="margin-bottom:32px;">
+    <div style="margin-bottom:14px;">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">Build your allocation</div>
+      <div style="font-family:var(--serif);font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.15;margin-bottom:6px;">A suggested portfolio for today's regime.</div>
+      <div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;">Pick a risk appetite. The allocation adjusts for the current macro regime — easing, tightening or transitional — using the rate and inflation trajectory.</div>
+    </div>
+
+    <!-- Risk picker + regime badge -->
+    <div style="display:flex;gap:18px;align-items:stretch;flex-wrap:wrap;margin-bottom:18px;">
+      <div style="flex:2;min-width:280px;background:var(--paper);border:1px solid var(--border);padding:16px 20px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:10px;">Your risk appetite</div>
+        <div id="aa-risk-picker" style="display:flex;gap:8px;">
+          <button data-risk="conservative" class="aa-risk-btn">Conservative</button>
+          <button data-risk="moderate" class="aa-risk-btn aa-active">Moderate</button>
+          <button data-risk="aggressive" class="aa-risk-btn">Aggressive</button>
+        </div>
+        <div id="aa-risk-description" style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text2);line-height:1.5;font-style:italic;margin-top:10px;">A balanced mix — meaningful equity exposure with debt cushion. Aiming for ~10–12% real returns with moderate volatility.</div>
+      </div>
+      <div style="flex:1;min-width:240px;background:var(--ink);color:var(--paper);padding:16px 20px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;opacity:0.6;font-weight:600;margin-bottom:8px;">Current macro regime</div>
+        <div id="aa-regime-label" style="font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-0.3px;margin-bottom:4px;">Detecting…</div>
+        <div id="aa-regime-detail" style="font-family:var(--bserif,Georgia,serif);font-size:12px;line-height:1.5;opacity:0.85;font-style:italic;"></div>
+      </div>
+    </div>
+
+    <!-- Pie + breakdown -->
+    <div style="display:grid;grid-template-columns:minmax(260px,360px) 1fr;gap:24px;background:var(--paper);border:1px solid var(--border);padding:24px;align-items:start;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div id="aa-pie-wrap" style="width:280px;height:280px;position:relative;">
+          <svg id="aa-pie" viewBox="0 0 100 100" style="width:100%;height:100%;"></svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;">Total</div>
+            <div style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-1px;line-height:1;">100%</div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);margin-top:14px;text-align:center;">RECOMMENDED MIX FOR ₹10 LAKH INVESTED TODAY</div>
+      </div>
+      <div id="aa-breakdown"></div>
+    </div>
+
+    <div style="margin-top:12px;padding:14px 18px;background:var(--bg2);border-left:3px solid var(--accent);font-family:var(--bserif,Georgia,serif);font-size:12px;color:var(--text2);line-height:1.5;font-style:italic;">
+      <strong style="font-style:normal;color:var(--text);">Not advice.</strong> This is an illustrative allocation built from textbook risk-bucketing and the current macro regime. Real portfolios should account for your goals, tax bracket, time horizon and existing holdings — and ideally a conversation with a SEBI-registered advisor.
+    </div>
   </div>
 
   <!-- ASSET ALLOCATION QUILT -->
@@ -726,40 +812,34 @@ body {
 <!-- NEWS SECTION -->
 <div class="section" id="section-news">
 
-    <!-- FEATURED NEWS WITH IMPACT ANALYSIS -->
-  <div style="margin-bottom:24px;">
-    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">Today's headlines, decoded</div>
-    <div style="font-family:var(--serif);font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.1;margin-bottom:6px;">What's breaking — and what it means.</div>
-    <div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;margin-bottom:16px;">Featured items expand to show the impact and how it fits the bigger story.</div>
+  <!-- BREAKING NEWS — today's headlines with impact analysis -->
+  <div style="margin-bottom:36px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <div style="width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;"></div>
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:700;">Breaking News</div>
+    </div>
+    <div style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1.1;margin-bottom:6px;">The latest from today, decoded.</div>
+    <div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;margin-bottom:16px;">Same-day stories first. Tap to expand for the impact and the bigger story.</div>
     <div id="featured-news-block">
-      <div style="padding:24px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">Loading featured news…</div>
+      <div style="padding:24px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">Loading breaking news…</div>
     </div>
   </div>
 
-<!-- FLOWCHART -->
-  <div class="panel" style="margin-bottom:20px;">
-    <div class="panel-header">
-      <span class="panel-title">THE BIG PICTURE — HOW IT AFFECTS YOU</span>
-      <button id="comic-btn" onclick="generateFlowchart()" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:5px 12px;background:var(--accent);color:#fff;border:none;cursor:pointer;">↻ REFRESH</button>
+  <!-- TABBED NEWS BY CATEGORY -->
+  <div style="margin-bottom:14px;">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;">The full feed</div>
+    <div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-0.3px;line-height:1.2;margin-bottom:14px;">Browse by category.</div>
+
+    <!-- TAB BAR -->
+    <div id="news-cat-bar" style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;flex-wrap:wrap;">
+      <div style="padding:14px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">Loading tabs...</div>
     </div>
-    <div id="comic-strip" style="padding:24px;color:var(--text3);font-family:var(--mono);font-size:10px;text-align:center;letter-spacing:1px;background:var(--bg2);">
-      Click REFRESH to generate an AI analysis of today's top headlines
-    </div>
-    <div id="comic-footer" style="padding:4px 16px 8px;font-family:var(--mono);font-size:9px;color:var(--text3);text-align:right;letter-spacing:1px;"></div>
   </div>
 
-  <!-- CATEGORY TABS -->
-  <div id="news-cat-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
-
-  <!-- NEWS GRID -->
-  <div class="panel">
-    <div class="news-grid" id="news-grid">
-      <div class="loading" style="grid-column: span 2;">
-        <div>FETCHING NEWS</div>
-        <div class="loading-bar"><div class="loading-progress"></div></div>
-      </div>
-    </div>
+  <div class="news-grid" id="news-grid" style="border-top:none;">
+    <div style="grid-column:span 2;padding:40px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">Loading news feed…</div>
   </div>
+
 </div>
 
 <!-- OPINIONS SECTION -->
@@ -788,22 +868,6 @@ body {
             <div class="loading-bar"><div class="loading-progress"></div></div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- STORY SECTION -->
-<div class="section" id="section-story">
-  <div class="panel" style="margin-bottom:20px;">
-    <div class="panel-header">
-      <span class="panel-title">THE STORY — WHAT IT ALL MEANS FOR YOU</span>
-      <span class="panel-meta">FROM YOUR SHEET</span>
-    </div>
-    <div id="story-content" style="padding:28px 32px;">
-      <div class="loading">
-        <div>LOADING STORY</div>
-        <div class="loading-bar"><div class="loading-progress"></div></div>
       </div>
     </div>
   </div>
@@ -858,11 +922,21 @@ function g(row, ...names) {
 // Format date values from Google Sheets (can come as Date objects or strings)
 function fmtDate(v) {
   if (!v) return '';
-  if (v instanceof Date) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return months[v.getMonth()] + '-' + String(v.getFullYear()).slice(2);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // If already a Date
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    return v.getDate() + ' ' + months[v.getMonth()] + ' ' + v.getFullYear();
   }
-  return String(v);
+  // If ISO string like "2026-03-31T18:30:00.000Z" — parse to Date
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    }
+  }
+  // If it's like "Mar-26" or "Q2 25-26" — leave alone, already short
+  return s;
 }
 
 // ============================================================
@@ -1154,26 +1228,38 @@ function _normalizeColumns() {
       }
     }
   });
-  // USDINR: pull latest from new USDINR_daily tab into forex rows
-  if (DATA.usdinr && DATA.usdinr.length && DATA.forex) {
-    // Build a map of date -> close rate
-    const usdMap = {};
-    DATA.usdinr.forEach(r => {
-      const d = r['Date'];
-      const close = r['Interbank Close Rate'];
-      if (d && close !== undefined) usdMap[String(d)] = parseFloat(close);
+  // USDINR — sort the daily tab by Date ascending so 'latest' = last row
+  // Then propagate the latest USD/INR value to forex rows so downstream code finds it
+  if (DATA.usdinr && DATA.usdinr.length) {
+    // Sort by Date ascending — most recent date last
+    DATA.usdinr.sort((a, b) => {
+      const da = new Date(a['Date']);
+      const db = new Date(b['Date']);
+      return da - db;
     });
-    // Add USDINR field to each forex row by matching on date if available, else use most recent
-    DATA.forex.forEach(r => {
-      if (r['USDINR'] === undefined) {
-        r['USDINR'] = usdMap[String(r['Date'])] || null;
+    // Find the latest valid USD/INR value and other currency closes
+    let latestUSDINR = null, latestDate = null, latestGBP = null, latestEUR = null, latestJPY = null;
+    for (let i = DATA.usdinr.length - 1; i >= 0; i--) {
+      const r = DATA.usdinr[i];
+      const v = parseFloat(r['USD/INR'] || r['US Dollar'] || r['USDINR'] || r['Interbank Close Rate']);
+      if (!isNaN(v)) {
+        latestUSDINR = v;
+        latestDate = r['Date'];
+        latestGBP = parseFloat(r['GBP/INR'] || r['Pound Sterling']) || null;
+        latestEUR = parseFloat(r['EUR/INR'] || r['Euro']) || null;
+        latestJPY = parseFloat(r['JPY/INR'] || r['Japanese Yen']) || null;
+        break;
       }
-    });
-    // If no match found, populate the latest forex row with latest USDINR
-    const lastForex = DATA.forex[DATA.forex.length - 1];
-    if (lastForex && (lastForex['USDINR'] === null || lastForex['USDINR'] === undefined)) {
-      const lastUsd = DATA.usdinr[DATA.usdinr.length - 1];
-      if (lastUsd) lastForex['USDINR'] = parseFloat(lastUsd['Interbank Close Rate']);
+    }
+    if (latestUSDINR !== null) {
+      window.LATEST_USDINR = latestUSDINR;
+      window.LATEST_USDINR_DATE = latestDate;
+      window.LATEST_GBPINR = latestGBP;
+      window.LATEST_EURINR = latestEUR;
+      window.LATEST_JPYINR = latestJPY;
+      if (DATA.forex) {
+        DATA.forex.forEach(r => { r['USDINR'] = latestUSDINR; });
+      }
     }
   }
 }
@@ -1184,14 +1270,14 @@ function renderAll() {
   renderPulse();
   renderWinds();
   renderTicker();
-  renderCPIChart();
-  renderGDPChart();
-  renderPMIChart();
-  renderTradeChart();
+  // renderCPIChart();  // canvas removed in Move 2
+  // renderGDPChart();  // canvas removed in Move 2
+  // renderPMIChart();  // canvas removed in Move 2
+  // renderTradeChart();  // canvas removed in Move 2
   renderInflationSection();
   renderGrowthSection();
   renderExternalSection();
-  renderMarketsSection();
+  // renderMarketsSection() removed (Markets tab gone)
   renderNews();
   renderOpinions();
   _tagAndShowNews(DATA.news || []);
@@ -1204,6 +1290,10 @@ function renderAll() {
   _renderRupee100();
   _renderPriyaBudget();
   _renderSalaryGap();
+  _renderWhatChanged();
+  _renderDollarPassport();
+  _renderAssetAllocation();
+  _renderCurrenciesChart();
 }
 
 
@@ -1244,9 +1334,19 @@ function renderKPIs() {
   const mfgPMI = g(latestPMI, 'Manufacturing_PMI', 'Manufacturing PMI', 1);
   const svcPMI = g(latestPMI, 'Services_PMI', 'Services PMI', 2);
   const forexRes = g(latestForex, 'Forex_Reserves_USD_Bn', 'Forex Reserves USD Bn', 1);
-  const usdinr = g(latestForex, 'USDINR', 'USD INR', 2);
-  const prevUSDINR = g(prevForex, 'USDINR', 'USD INR', 2);
+  // Pull USD/INR directly from window.LATEST_USDINR (set by _normalizeColumns)
+  // Fall back to whatever is stamped on forex rows.
+  const usdinr = window.LATEST_USDINR || g(latestForex, 'USDINR', 'USD INR', 2);
+  // Previous USDINR: second-to-last row of DATA.usdinr if available
+  let prevUSDINR = null;
+  if (DATA.usdinr && DATA.usdinr.length >= 2) {
+    const r = DATA.usdinr[DATA.usdinr.length - 2];
+    const v = parseFloat(r['USD/INR'] || r['US Dollar'] || r['USDINR']);
+    if (!isNaN(v)) prevUSDINR = v;
+  }
   const usdinrChg = (usdinr && prevUSDINR) ? (usdinr - prevUSDINR).toFixed(2) : null;
+  // USD/INR date: use the latest USDINR_daily date if present, else fall back to forex date
+  const usdinrDate = fmtDate(window.LATEST_USDINR_DATE || g(latestForex, 'Date', 0));
   const unempVal = g(latestUnemp, 'Unemployment_Rate_%', 'Unemployment Rate %', 1);
 
   const cpiDate = fmtDate(g(latestCPI, 'Date', 0));
@@ -1261,7 +1361,7 @@ function renderKPIs() {
     { label: 'GDP GROWTH', value: gdpVal, unit: '%', change: gdpChg, date: gdpDate, color: 'green', dir: gdpChg > 0 ? 'up' : 'down' },
     { label: 'REPO RATE', value: repoRate, unit: '%', change: null, date: rbiDate, color: 'blue', dir: 'neutral' },
     { label: 'MFG PMI', value: mfgPMI, unit: '', change: null, date: pmiDate, color: mfgPMI >= 50 ? 'green' : 'red', dir: 'neutral' },
-    { label: 'USD / INR', value: usdinr, unit: '', change: usdinrChg, date: forexDate, color: 'purple', dir: usdinrChg > 0 ? 'down' : 'up' },
+    { label: 'USD / INR', value: usdinr, unit: '', change: usdinrChg, date: usdinrDate, color: 'purple', dir: usdinrChg > 0 ? 'down' : 'up' },
     { label: 'FOREX RESERVES', value: forexRes, unit: 'B', change: null, date: forexDate, color: 'teal', dir: 'neutral' },
     { label: 'SERVICES PMI', value: svcPMI, unit: '', change: null, date: pmiDate, color: svcPMI >= 50 ? 'green' : 'red', dir: 'neutral' },
     { label: 'UNEMPLOYMENT', value: unempVal, unit: '%', change: null, date: unempDate, color: 'red', dir: 'neutral' },
@@ -1291,7 +1391,10 @@ function renderTicker() {
     { label: 'REPO', val: DATA.rbi?.slice(-1)[0]?.['Repo_Rate'] + '%', chg: null },
     { label: 'MFG PMI', val: DATA.pmi?.slice(-1)[0]?.['Manufacturing_PMI'], chg: null },
     { label: 'SVC PMI', val: DATA.pmi?.slice(-1)[0]?.['Services_PMI'], chg: null },
-    { label: 'USD/INR', val: DATA.forex?.slice(-1)[0]?.['USDINR'], chg: null },
+    { label: 'USD/INR', val: (window.LATEST_USDINR || DATA.forex?.slice(-1)[0]?.['USDINR'])?.toFixed(4), chg: null },
+    { label: 'GBP/INR', val: window.LATEST_GBPINR?.toFixed(4), chg: null },
+    { label: 'EUR/INR', val: window.LATEST_EURINR?.toFixed(4), chg: null },
+    { label: 'JPY/INR', val: window.LATEST_JPYINR?.toFixed(2), chg: null },
     { label: 'FOREX RES', val: '$' + DATA.forex?.slice(-1)[0]?.['Forex_Reserves_USD_Bn'] + 'B', chg: null },
     { label: 'UNEMP', val: (DATA.unemp?.slice(-1)[0]?.['Unemployment_Rate_%'] || '--') + '%', chg: null },
     { label: 'EXPORTS', val: '$' + DATA.trade?.slice(-1)[0]?.['Exports_USD_Bn'] + 'B', chg: null },
@@ -1398,19 +1501,20 @@ function renderInflationSection() {
         { label: 'Headline', data: d.map(r => parseFloat(g(r,'CPI_Headline','Headline',1)) || null), borderColor: '#f5a623', tension: 0.4, borderWidth: 2, pointRadius: 3, fill: false },
         { label: 'Food', data: d.map(r => parseFloat(g(r,'Food',2)) || null), borderColor: '#00d084', tension: 0.4, borderWidth: 1.5, pointRadius: 2, fill: false },
         { label: 'Fuel', data: d.map(r => parseFloat(g(r,'Fuel',3)) || null), borderColor: '#ff4757', tension: 0.4, borderWidth: 1.5, pointRadius: 2, fill: false },
-        { label: 'Core/Housing', data: d.map(r => parseFloat(g(r,'Core',4)) || null), borderColor: '#a78bfa', tension: 0.4, borderWidth: 1.5, pointRadius: 2, fill: false },
+        { label: 'Housing, water, electricity, gas and other fuels', data: d.map(r => parseFloat(g(r,'Housing, water, electricity, gas and other fuels','Housing',4)) || null), borderColor: '#a78bfa', tension: 0.4, borderWidth: 1.5, pointRadius: 2, fill: false },
       ]
     }
   });
 
-  // CPI Table
+  // CPI Table (may not exist if removed from layout)
   const tbody = document.querySelector('#cpi-table tbody');
+  if (tbody) {
   const rows = DATA.cpi?.slice(-12).reverse() || [];
   tbody.innerHTML = rows.map(r => {
     const headline = parseFloat(g(r,'CPI_Headline','Headline',1));
     const food = parseFloat(g(r,'Food',2));
     const fuel = parseFloat(g(r,'Fuel',3));
-    const core = parseFloat(g(r,'Core',4));
+    const core = parseFloat(g(r,'Housing, water, electricity, gas and other fuels','Core',4));
     const date = fmtDate(g(r,'Date',0));
     return `<tr>
       <td class="date">${date}</td>
@@ -1420,25 +1524,26 @@ function renderInflationSection() {
       <td>${isNaN(core) ? '--' : core.toFixed(2)}%</td>
     </tr>`;
   }).join('');
+  }
 
   // RBI Table
   const rbiTbody = document.querySelector('#rbi-table tbody');
+  if (rbiTbody) {
   const rbiRows = DATA.rbi?.slice().reverse() || [];
   rbiTbody.innerHTML = rbiRows.map(r => {
     const stance = g(r,'Stance',4) || '';
     const date = fmtDate(g(r,'Date',0));
     const repo = parseFloat(g(r,'Repo_Rate',1));
-    const crr = parseFloat(g(r,'CRR',3));
     const cls = stance.toLowerCase().includes('neutral') ? 'neutral'
       : stance.toLowerCase().includes('accommodative') ? 'accommodative'
       : stance.toLowerCase().includes('withdrawal') ? 'withdrawal' : 'hawkish';
     return `<tr>
       <td class="date">${date}</td>
       <td class="val">${isNaN(repo)?'--':repo}%</td>
-      <td>${isNaN(crr)?'--':crr}%</td>
       <td><span class="stance-badge stance-${cls}">${stance.replace('Withdrawal of Accommodation','WD ACCOM').substring(0,12)}</span></td>
     </tr>`;
   }).join('');
+  }
 }
 
 // ============================================================
@@ -1511,20 +1616,19 @@ function renderExternalSection() {
     data: {
       labels: fd.map(r => fmtDate(g(r,'Date',0))),
       datasets: [
-        { label: 'Forex Reserves ($B)', data: fd.map(r => parseFloat(g(r,'Forex_Reserves_USD_Bn',1)) || null), borderColor: '#2dd4bf', tension: 0.4, borderWidth: 2, pointRadius: 2, yAxisID: 'y' },
-        { label: 'USD/INR', data: fd.map(r => parseFloat(g(r,'USDINR',2)) || null), borderColor: '#a78bfa', tension: 0.4, borderWidth: 1.5, pointRadius: 2, yAxisID: 'y1' },
+        { label: 'Forex Reserves ($B)', data: fd.map(r => parseFloat(g(r,'Forex_Reserves_USD_Bn',1)) || null), borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,0.08)', tension: 0.4, borderWidth: 2, pointRadius: 2, fill: true },
       ]
     },
     options: {
       scales: {
         x: { grid: { color: '#1e1e1e' }, ticks: { color: '#555', font: { family: 'IBM Plex Mono', size: 9 }, maxRotation: 45 } },
-        y: { position: 'left', grid: { color: '#1e1e1e' }, ticks: { color: '#2dd4bf', font: { family: 'IBM Plex Mono', size: 9 } } },
-        y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#a78bfa', font: { family: 'IBM Plex Mono', size: 9 } } }
+        y: { grid: { color: '#1e1e1e' }, ticks: { color: '#2dd4bf', font: { family: 'IBM Plex Mono', size: 9 } } }
       }
     }
   });
 
   const tbody = document.querySelector('#trade-table tbody');
+  if (tbody) {
   tbody.innerHTML = (DATA.trade?.slice(-12).reverse() || []).map(r => {
     const exp = parseFloat(g(r,'Exports_USD_Bn',1));
     const imp = parseFloat(g(r,'Imports_USD_Bn',2));
@@ -1537,63 +1641,23 @@ function renderExternalSection() {
       <td class="${bal >= 0 ? 'up' : 'down'}">$${isNaN(bal)?'--':bal.toFixed(2)}</td>
     </tr>`;
   }).join('');
+  }
+  _renderCurrenciesChart();
 }
 
 // ============================================================
 // MARKETS SECTION
 // ============================================================
-function renderMarketsSection() {
-  const latestRBI = DATA.rbi?.slice(-1)[0];
-  const latestForex = DATA.forex?.slice(-1)[0];
-  const latestPMI = DATA.pmi?.slice(-1)[0];
-
-  const mRBI = DATA.rbi?.slice(-1)[0] || {};
-  const mForex = DATA.forex?.slice(-1)[0] || {};
-  document.getElementById('market-kpis').innerHTML = [
-    { label: 'REPO RATE', value: (g(mRBI,'Repo_Rate',1)||'--') + '%', sub: g(mRBI,'Stance',4)||'', color: 'blue' },
-    { label: 'USD / INR', value: g(mForex,'USDINR',2)||'--', sub: fmtDate(g(mForex,'Date',0)), color: 'purple' },
-    { label: 'FOREX RESERVES', value: '$' + (g(mForex,'Forex_Reserves_USD_Bn',1)||'--') + 'B', sub: fmtDate(g(mForex,'Date',0)), color: 'teal' },
-  ].map(c => `
-    <div class="kpi-card ${c.color}">
-      <div class="kpi-label">${c.label}</div>
-      <div class="kpi-value" style="font-size:22px;">${c.value}</div>
-      <div class="kpi-date" style="margin-top:6px;">${c.sub || ''}</div>
-    </div>
-  `).join('');
-
-  const pd = DATA.pmi?.slice(-18) || [];
-  makeChart('pmi-full-chart', {
-    type: 'line',
-    data: {
-      labels: pd.map(r => fmtDate(g(r,'Date',0))),
-      datasets: [
-        { label: 'Manufacturing', data: pd.map(r => parseFloat(g(r,'Manufacturing_PMI',1)) || null), borderColor: '#3d9eff', backgroundColor: 'rgba(61,158,255,0.08)', tension: 0.4, borderWidth: 2, pointRadius: 3, fill: true },
-        { label: 'Services', data: pd.map(r => parseFloat(g(r,'Services_PMI',2)) || null), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.05)', tension: 0.4, borderWidth: 2, pointRadius: 3, fill: true },
-      ]
-    },
-    options: {
-      scales: {
-        x: { grid: { color: '#1e1e1e' }, ticks: { color: '#555', font: { family: 'IBM Plex Mono', size: 9 }, maxRotation: 45 } },
-        y: { min: 45, max: 65, grid: { color: '#1e1e1e' }, ticks: { color: '#555', font: { family: 'IBM Plex Mono', size: 9 } } }
-      }
-    }
-  });
-
-  const fd = DATA.forex?.slice(-24) || [];
-  makeChart('usdinr-chart', {
-    type: 'line',
-    data: {
-      labels: fd.map(r => fmtDate(g(r,'Date',0))),
-      datasets: [{ label: 'USD/INR', data: fd.map(r => parseFloat(g(r,'USDINR',2)) || null), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.08)', tension: 0.4, borderWidth: 2, pointRadius: 2, fill: true }]
-    }
-  });
-}
 
 // ============================================================
 // NEWS
 // ============================================================
 function renderNews() {
-  const news = DATA.news || [];
+  const news = (DATA.news || []).slice().sort(function(a, b) {
+    var da = new Date(a['Date'] || a['date']);
+    var db = new Date(b['Date'] || b['date']);
+    return db - da;  // latest first
+  });
   console.log('News rows:', news.length, news[0] ? Object.keys(news[0]) : 'none');
   if (news.length === 0) {
     document.getElementById('news-grid').innerHTML = `
@@ -1675,96 +1739,198 @@ function renderPulse() {
   const pmi   = DATA.pmi   || [];
   const forex = DATA.forex || [];
   const trade = DATA.trade || [];
-  const lc=cpi[cpi.length-1]||{}, pc=cpi[cpi.length-2]||{};
-  const lg=gdp[gdp.length-1]||{}, lr=rbi[rbi.length-1]||{};
+  const lc=cpi[cpi.length-1]||{}, pc=cpi[cpi.length-2]||{}, p3c=cpi[cpi.length-3]||{};
+  const lg=gdp[gdp.length-1]||{}, pg=gdp[gdp.length-2]||{};
+  const lr=rbi[rbi.length-1]||{}, pr=rbi[rbi.length-2]||{};
   const lp=pmi[pmi.length-1]||{}, lf=forex[forex.length-1]||{};
   const lt=trade[trade.length-1]||{};
+
   const cpiV  = parseFloat(lc['CPI_Headline']||Object.values(lc)[1])||null;
   const cpiP  = parseFloat(pc['CPI_Headline']||Object.values(pc)[1])||null;
-  const gdpV  = parseFloat(lg['GDP_Growth_YoY_%']||lg['GDP_Growth_YoY_percent']||Object.values(lg)[1])||null;
+  const cpiP3 = parseFloat(p3c['CPI_Headline']||Object.values(p3c)[1])||null;
+  const gdpV  = parseFloat(lg['GDP_Growth_YoY_%']||lg['GDP_Growth_YoY_percent']||Object.values(lg)[2])||null;
+  const gdpP  = parseFloat(pg['GDP_Growth_YoY_%']||pg['GDP_Growth_YoY_percent']||Object.values(pg)[2])||null;
   const repo  = parseFloat(lr['Repo_Rate']||Object.values(lr)[1])||null;
-  const stance= lr['Stance']||Object.values(lr)[4]||'';
+  const repoP = parseFloat(pr['Repo_Rate']||Object.values(pr)[1])||null;
+  const stance= (lr['Stance']||Object.values(lr)[2]||'').toString();
   const mfg   = parseFloat(lp['Manufacturing_PMI']||Object.values(lp)[1])||null;
   const svc   = parseFloat(lp['Services_PMI']||Object.values(lp)[2])||null;
   const fxres = parseFloat(lf['Forex_Reserves_USD_Bn']||Object.values(lf)[1])||null;
   const trbal = parseFloat(lt['Trade_Balance_USD_Bn']||Object.values(lt)[3])||null;
 
   const paras = [];
-  if (cpiV !== null) {
-    const ref = cpiP !== null ? ` — ${cpiV > cpiP ? 'up' : 'down'} from ${cpiP.toFixed(2)}% last month` : '';
-    if (cpiV < 4)
-      paras.push(`<p>Headline inflation has cooled to <span class="hi">${cpiV.toFixed(2)}%${ref}</span>. The kind of number that lets the RBI exhale and lets the finance ministry quietly take credit.</p>`);
-    else if (cpiV < 5.5)
-      paras.push(`<p>Inflation sits at <span class="nu">${cpiV.toFixed(2)}%${ref}</span>. Not a crisis, but not comfortable — the sort of number that keeps MPC members staring at spreadsheets the night before every meeting.</p>`);
-    else
-      paras.push(`<p>At <span class="lo">${cpiV.toFixed(2)}%${ref}</span>, inflation is proving stubborn. The RBI has its work cut out, and your grocery bill agrees.</p>`);
-  }
-  if (gdpV !== null) {
-    if (gdpV >= 7)
-      paras.push(`<p>GDP growth at <span class="hi">${gdpV.toFixed(1)}%</span> keeps India firmly in fastest-large-economy territory. Manufacturing and services are both pulling weight.</p>`);
-    else if (gdpV >= 5.5)
-      paras.push(`<p>The economy grows at <span class="nu">${gdpV.toFixed(1)}%</span> — respectable enough for a press release, though not the fireworks the government wanted.</p>`);
-    else
-      paras.push(`<p>GDP at <span class="lo">${gdpV.toFixed(1)}%</span> is flashing a mild caution. Private investment needs a push, and the external environment is not helping.</p>`);
-  }
-  if (repo !== null)
-    paras.push(`<p>RBI holds at <span class="nu">${repo.toFixed(2)}%</span> with a ${stance.toLowerCase()} stance — watching, waiting, keeping powder dry. The next MPC decision is what every bond trader has circled on the calendar.</p>`);
-  if (mfg !== null && svc !== null)
-    paras.push(`<p>PMIs are in expansion — Manufacturing at <span class="hi">${mfg.toFixed(1)}</span>, Services at <span class="hi">${svc.toFixed(1)}</span>. Factories humming, offices busy. The business cycle looks healthy.</p>`);
-  if (trbal !== null)
-    paras.push(`<p>Trade deficit at <span class="lo">$${Math.abs(trbal).toFixed(1)}B</span>. India imports more than it exports — always has. Forex reserves at $${fxres ? fxres.toFixed(0) : '--'}B provide the insurance policy.</p>`);
 
+  // ── CPI — trend-aware ──
+  if (cpiV !== null) {
+    const ref = cpiP !== null ? ` — ${cpiV > cpiP ? 'up' : cpiV < cpiP ? 'down' : 'flat'} from ${cpiP.toFixed(2)}% last month` : '';
+    // Is the trend rising or falling over last 2 months?
+    const rising = cpiP !== null && cpiP3 !== null && cpiV > cpiP && cpiP > cpiP3;
+    const falling = cpiP !== null && cpiP3 !== null && cpiV < cpiP && cpiP < cpiP3;
+    if (cpiV < 4 && falling)
+      paras.push(`<p>Inflation has eased to <span class="hi">${cpiV.toFixed(2)}%${ref}</span> — comfortably below the RBI's 4% target. Genuine relief, though food and fuel could flip the script quickly.</p>`);
+    else if (cpiV < 4 && rising)
+      paras.push(`<p>Inflation at <span class="nu">${cpiV.toFixed(2)}%${ref}</span> is still below the RBI's 4% comfort band, but the trajectory is up — a watch-item rather than a victory.</p>`);
+    else if (cpiV < 4)
+      paras.push(`<p>Headline inflation sits at <span class="hi">${cpiV.toFixed(2)}%${ref}</span>, below the RBI's 4% mid-point. Good news, but oil prices and supply shocks remain the perennial swing factors.</p>`);
+    else if (cpiV < 5.5 && rising)
+      paras.push(`<p>Inflation at <span class="nu">${cpiV.toFixed(2)}%${ref}</span> is moving higher — still inside the RBI's tolerance band, but the direction matters more than the level here.</p>`);
+    else if (cpiV < 5.5)
+      paras.push(`<p>Inflation at <span class="nu">${cpiV.toFixed(2)}%${ref}</span> is in the RBI's 2–6% band but above the 4% target. Not a crisis, not comfortable either.</p>`);
+    else
+      paras.push(`<p>Inflation at <span class="lo">${cpiV.toFixed(2)}%${ref}</span> is testing the upper bound of the RBI's tolerance. Rate-cut talk goes on hold; the central bank's hands are tied.</p>`);
+  }
+
+  // ── GDP — trend-aware ──
+  if (gdpV !== null) {
+    const dir = gdpP !== null ? (gdpV > gdpP ? 'accelerating from' : gdpV < gdpP ? 'down from' : 'matching') : '';
+    const ref = gdpP !== null ? ` (${dir} ${gdpP.toFixed(1)}% last quarter)` : '';
+    if (gdpV >= 7)
+      paras.push(`<p>GDP growth at <span class="hi">${gdpV.toFixed(1)}%</span>${ref} keeps India in fastest-large-economy territory. Manufacturing and services both pulling weight.</p>`);
+    else if (gdpV >= 5.5)
+      paras.push(`<p>The economy expanded <span class="nu">${gdpV.toFixed(1)}%</span>${ref} — respectable for a press release, below the 7%+ we'd want to see structural lift-off.</p>`);
+    else
+      paras.push(`<p>GDP at <span class="lo">${gdpV.toFixed(1)}%</span>${ref} is flashing a soft signal. Private capex and consumption need a push if this is to firm up.</p>`);
+  }
+
+  // ── RBI / Repo — direction matters more than level ──
+  if (repo !== null) {
+    const cutting = repoP !== null && repo < repoP;
+    const hiking  = repoP !== null && repo > repoP;
+    const stanceLow = stance.toLowerCase();
+    const inflationRising = cpiV !== null && cpiP !== null && cpiV > cpiP;
+
+    if (cutting && inflationRising)
+      paras.push(`<p>RBI is at <span class="nu">${repo.toFixed(2)}%</span> — they've eased even as inflation creeps higher. With prices firming up, the cutting cycle may be near its end; the next move could just as easily be a long pause.</p>`);
+    else if (cutting)
+      paras.push(`<p>RBI has cut to <span class="hi">${repo.toFixed(2)}%</span>. Cheaper money is starting to flow through to home and car loans — the transmission lag is roughly two quarters.</p>`);
+    else if (hiking)
+      paras.push(`<p>RBI raised to <span class="lo">${repo.toFixed(2)}%</span>. Borrowing just got more expensive across the system; the MPC is choosing inflation control over growth.</p>`);
+    else if (stanceLow.includes('neutral'))
+      paras.push(`<p>RBI holds at <span class="nu">${repo.toFixed(2)}%</span> with a neutral stance. Powder kept dry — whether the next move is a cut or a pause depends entirely on inflation prints over the next two months.</p>`);
+    else
+      paras.push(`<p>RBI sits at <span class="nu">${repo.toFixed(2)}%</span>. Stance: ${stance || 'as-is'} — every word of the MPC commentary now matters more than the rate decision itself.</p>`);
+  }
+
+  // ── PMI — directional ──
+  if (mfg !== null && svc !== null) {
+    if (mfg >= 55 && svc >= 55)
+      paras.push(`<p>Both PMIs are in firm expansion — Manufacturing at <span class="hi">${mfg.toFixed(1)}</span>, Services at <span class="hi">${svc.toFixed(1)}</span>. Order books and hiring intentions remain healthy.</p>`);
+    else if (mfg > 50 && svc > 50)
+      paras.push(`<p>PMIs are above 50 — Manufacturing at <span class="nu">${mfg.toFixed(1)}</span>, Services at <span class="nu">${svc.toFixed(1)}</span>. Expansion, but the pace has moderated.</p>`);
+    else
+      paras.push(`<p>PMIs are showing strain — Manufacturing at <span class="lo">${mfg.toFixed(1)}</span>, Services at <span class="lo">${svc.toFixed(1)}</span>. Anything below 50 means more managers see contraction than expansion.</p>`);
+  }
+
+  // ── Trade balance ──
+  if (trbal !== null) {
+    if (trbal < -25)
+      paras.push(`<p>Trade deficit at <span class="lo">$${Math.abs(trbal).toFixed(1)}B</span> is wide — heavy imports are eating into reserves and putting persistent pressure on the rupee.</p>`);
+    else if (trbal < 0)
+      paras.push(`<p>Trade deficit at <span class="nu">$${Math.abs(trbal).toFixed(1)}B</span>. India still imports more than it exports — the question is whether services exports and remittances can offset the goods gap.</p>`);
+    else
+      paras.push(`<p>Trade balance at <span class="hi">$${trbal.toFixed(1)}B</span> — a rare surplus that takes pressure off the rupee and gives RBI breathing room on the external front.</p>`);
+  }
+
+  // ── Closer ──
   const closers = [
-    "Bottom line: India's macro story is intact — the plot is just getting more interesting.",
-    "Overall: cautiously optimistic, with an asterisk or two.",
-    "The macro picture? Most pieces in the right place. A few still looking for their spot.",
-    "In short: not panic stations, but certainly not feet-up-on-the-desk time either."
+    "Bottom line: India's macro story is still intact — but the next two months of inflation prints will decide whether the RBI gets to keep cutting or has to stop here.",
+    "Overall: cautiously constructive, with the inflation trajectory as the swing factor everyone is watching.",
+    "The macro picture: most pieces in the right place, but pricing pressures are the wild card. Watch the next CPI release.",
+    "In short: solid growth, easing rates, but the cutting cycle may be running out of room. Inflation has the casting vote."
   ];
   paras.push(`<p><em>${closers[Math.floor(Math.random() * closers.length)]}</em></p>`);
 
   const el = document.getElementById('pulse-text');
   if (el) el.innerHTML = paras.length > 1 ? paras.join('') : '<p style="color:rgba(255,255,255,0.4);">Connect your sheet to see analysis.</p>';
   const ft = document.getElementById('pulse-footer');
-  if (ft) ft.textContent = `Generated ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · Based on latest available data`;
+  if (ft) ft.textContent = `Generated ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · Based on latest data`;
 }
 
-// ── HEADWINDS & TAILWINDS ──
 function renderWinds() {
   const cpi   = DATA.cpi   || [];
   const gdp   = DATA.gdp   || [];
   const pmi   = DATA.pmi   || [];
   const forex = DATA.forex || [];
   const rbi   = DATA.rbi   || [];
-  const cpiV  = parseFloat((cpi[cpi.length-1]||{})['CPI_Headline']||Object.values(cpi[cpi.length-1]||{})[1])||null;
-  const gdpV  = parseFloat((gdp[gdp.length-1]||{})['GDP_Growth_YoY_%']||(gdp[gdp.length-1]||{})['GDP_Growth_YoY_percent']||Object.values(gdp[gdp.length-1]||{})[1])||null;
+  const cpiL  = cpi[cpi.length-1]||{}, cpiP = cpi[cpi.length-2]||{}, cpiP3=cpi[cpi.length-3]||{};
+  const cpiV  = parseFloat(cpiL['CPI_Headline']||Object.values(cpiL)[1])||null;
+  const cpiPv = parseFloat(cpiP['CPI_Headline']||Object.values(cpiP)[1])||null;
+  const cpiP3v= parseFloat(cpiP3['CPI_Headline']||Object.values(cpiP3)[1])||null;
+  const gdpV  = parseFloat((gdp[gdp.length-1]||{})['GDP_Growth_YoY_%']||(gdp[gdp.length-1]||{})['GDP_Growth_YoY_percent']||Object.values(gdp[gdp.length-1]||{})[2])||null;
   const mfg   = parseFloat((pmi[pmi.length-1]||{})['Manufacturing_PMI']||Object.values(pmi[pmi.length-1]||{})[1])||null;
   const fxres = parseFloat((forex[forex.length-1]||{})['Forex_Reserves_USD_Bn']||Object.values(forex[forex.length-1]||{})[1])||null;
   const repo  = parseFloat((rbi[rbi.length-1]||{})['Repo_Rate']||Object.values(rbi[rbi.length-1]||{})[1])||null;
+  const repoP = parseFloat((rbi[rbi.length-2]||{})['Repo_Rate']||Object.values(rbi[rbi.length-2]||{})[1])||null;
   const stance= (rbi[rbi.length-1]||{})['Stance']||'';
 
   const tail = [], head = [];
+
+  // ── CPI — direction is what matters ──
   if (cpiV !== null) {
-    if (cpiV < 4.5) tail.push({l:'Cooling Inflation',     t:`CPI at ${cpiV.toFixed(2)}% gives the RBI room to manoeuvre and supports real purchasing power.`});
-    else            head.push({l:'Elevated Inflation',     t:`CPI at ${cpiV.toFixed(2)}% keeps monetary policy tight and squeezes household budgets.`});
+    const rising  = cpiPv !== null && cpiP3v !== null && cpiV > cpiPv && cpiPv > cpiP3v;
+    const falling = cpiPv !== null && cpiP3v !== null && cpiV < cpiPv && cpiPv < cpiP3v;
+    if (cpiV < 4 && falling)
+      tail.push({l:'Inflation Easing',     t:`CPI at ${cpiV.toFixed(2)}% is below the RBI target and trending lower — gives the central bank room to cut.`});
+    else if (cpiV < 4 && rising)
+      head.push({l:'Inflation Firming Up',  t:`CPI at ${cpiV.toFixed(2)}% — still below target, but the trend is up. If oil or food spike, the cushion shrinks fast.`});
+    else if (cpiV < 4)
+      tail.push({l:'Inflation Below Target',t:`CPI at ${cpiV.toFixed(2)}% sits below the RBI's 4% target — supportive of household budgets and policy flexibility.`});
+    else if (cpiV < 5.5 && rising)
+      head.push({l:'Inflation Rising',      t:`CPI at ${cpiV.toFixed(2)}% is climbing inside the tolerance band — narrows the RBI's room to keep easing.`});
+    else if (cpiV < 5.5)
+      head.push({l:'Inflation Above Target',t:`CPI at ${cpiV.toFixed(2)}% is in the band but above the 4% target — keeps policy on a tightrope.`});
+    else
+      head.push({l:'Elevated Inflation',    t:`CPI at ${cpiV.toFixed(2)}% pushes the upper bound of RBI tolerance — rate cuts off the table for now.`});
   }
+
+  // ── GDP ──
   if (gdpV !== null) {
-    if (gdpV >= 6.5) tail.push({l:'Strong GDP Growth',    t:`${gdpV.toFixed(1)}% growth keeps India among the fastest-growing large economies in the world.`});
-    else             head.push({l:'Growth Moderation',     t:`GDP at ${gdpV.toFixed(1)}% is below potential — capex and consumption need a push.`});
+    if (gdpV >= 7)
+      tail.push({l:'Strong GDP Growth',   t:`${gdpV.toFixed(1)}% growth keeps India among the fastest-growing large economies — supportive of jobs and revenues.`});
+    else if (gdpV >= 6)
+      tail.push({l:'Solid GDP Growth',    t:`${gdpV.toFixed(1)}% is respectable — short of full sprint, but ahead of most peers.`});
+    else
+      head.push({l:'Growth Moderation',   t:`GDP at ${gdpV.toFixed(1)}% is below potential — private capex and consumption need to fire.`});
   }
+
+  // ── PMI ──
   if (mfg !== null) {
-    if (mfg > 55)  tail.push({l:'Robust PMI Activity',    t:`Manufacturing PMI at ${mfg.toFixed(1)} signals strong order books and factory output.`});
-    else           head.push({l:'PMI Softening',           t:`Manufacturing PMI at ${mfg.toFixed(1)} points to slowing industrial momentum.`});
+    if (mfg > 55)
+      tail.push({l:'Robust Factory Activity', t:`Manufacturing PMI at ${mfg.toFixed(1)} signals strong order books and steady factory output.`});
+    else if (mfg > 50)
+      tail.push({l:'Factories Expanding',     t:`Manufacturing PMI at ${mfg.toFixed(1)} stays in expansion — momentum is positive but moderate.`});
+    else
+      head.push({l:'PMI Contracting',         t:`Manufacturing PMI at ${mfg.toFixed(1)} is below 50 — factories are reporting slowdown more than growth.`});
   }
+
+  // ── Forex Reserves ──
   if (fxres !== null) {
-    if (fxres > 620) tail.push({l:'Strong Forex Reserves', t:`$${fxres.toFixed(0)}B in reserves gives RBI firepower to manage currency volatility.`});
-    else             head.push({l:'Forex Reserve Pressure', t:`Declining reserves reduce the RBI capacity to defend the rupee.`});
+    if (fxres > 650)
+      tail.push({l:'Strong Forex Reserves', t:`$${fxres.toFixed(0)}B in reserves — comfortable buffer against currency volatility and external shocks.`});
+    else if (fxres > 580)
+      tail.push({l:'Healthy Reserves',      t:`$${fxres.toFixed(0)}B is adequate — covers several months of imports and gives RBI flexibility.`});
+    else
+      head.push({l:'Reserve Pressure',      t:`Reserves at $${fxres.toFixed(0)}B are thinner than ideal — leaves less room to defend the rupee.`});
   }
-  if (stance.toLowerCase().includes('neutral') && repo !== null && repo <= 6.25)
-    tail.push({l:'Rate Cut Cycle', t:'Neutral stance signals easier monetary conditions ahead — good for borrowers and investment.'});
-  else if (repo !== null && repo > 6.25)
-    head.push({l:'Tight Monetary Conditions', t:`Repo at ${repo.toFixed(2)}% keeps borrowing costs elevated for businesses and home buyers.`});
-  head.push({l:'Global Trade Uncertainty', t:'Tariff volatility and geopolitical tensions create headwinds for exports and capital flows.'});
-  if (tail.length === 0) tail.push({l:'Resilient Domestic Demand', t:'A large domestic consumer base provides a structural cushion against global shocks.'});
+
+  // ── Repo / Rate Cycle ── 
+  if (repo !== null && repoP !== null) {
+    const cutting = repo < repoP;
+    const inflationRising = cpiV !== null && cpiPv !== null && cpiV > cpiPv;
+    if (cutting && inflationRising)
+      head.push({l:'Rate Cycle Near End', t:`Repo at ${repo.toFixed(2)}% — RBI has cut even as inflation firms up. The cutting cycle may pause here, which would disappoint markets pricing in more easing.`});
+    else if (cutting)
+      tail.push({l:'Easing Cycle',        t:`Repo cut to ${repo.toFixed(2)}% supports cheaper credit for borrowers — home, auto and business loans get easier.`});
+    else if (repo > repoP)
+      head.push({l:'Rates Rising',        t:`Repo at ${repo.toFixed(2)}% is up — borrowing costs climbing across the system.`});
+    else if (stance.toLowerCase().includes('neutral'))
+      head.push({l:'On the Fence',        t:`Repo unchanged at ${repo.toFixed(2)}%, stance neutral — every CPI print now becomes a market event.`});
+  }
+
+  // Always-on headwind
+  head.push({l:'Global Trade Uncertainty', t:'US tariff posture, China demand and oil swings can disrupt exports, capital flows and the rupee at short notice.'});
+
+  if (tail.length === 0) tail.push({l:'Domestic Demand Cushion', t:'India\'s large consumer base provides a structural buffer against external shocks.'});
 
   const item = w => `<div class="wind-item"><div class="wind-bullet"></div><div><div class="wind-item-label">${w.l}</div><div class="wind-item-text">${w.t}</div></div></div>`;
   const el = document.getElementById('winds-grid');
@@ -1839,24 +2005,40 @@ var _NEWS_INCLUDE = [
   // global / geopolitics with India angle
   'us tariff','tariffs','trade war','china exports','crude oil','opec','brent',
   'fed rate','federal reserve','us inflation','us cpi','us economy',
-  'wto','sanctions','export ban'
+  'wto','sanctions','export ban',
+  // personal finance — household & saver perspective
+  'fixed deposit','fd rate','fd interest','home loan','car loan','personal loan',
+  'gold loan','loan against','credit card','tax saving','tax filing','itr ',
+  'income tax return','elss','ppf','nps ','epf','provident fund','sip ',
+  'retirement planning','term insurance','health insurance','life insurance',
+  'ulip','old tax regime','new tax regime','tax slab','savings account',
+  'gratuity','pension','financial planning'
 ];
 
-// Tight category buckets (priority order — first match wins)
+// Fine-grained category buckets (priority order — first match wins)
+// Personal finance is checked first so 'FD rates' goes there, not RBI rates.
+// AI is split from startup-tech for cleaner segmentation.
 var _NEWS_CATS = {
+  personal_finance: ['fixed deposit','fd rate','fd interest','home loan','car loan','personal loan','gold loan','credit card','tax saving','itr filing','income tax return','elss','ppf','nps ','epf','provident fund','sip ','retirement planning','term insurance','health insurance','life insurance','ulip','old tax regime','new tax regime','tax slab','savings account','financial planning'],
+  ai:        ['artificial intelligence',' ai ',' ai,',' ai.',' ai-','machine learning','generative ai','chatgpt','openai','anthropic','gemini','gpt-','llm','foundation model','data centre','data center','semiconductor','chip manufacturing','nvidia'],
+  startups:  ['indian startup','startup','saas','funding round','series a','series b','series c','series d','unicorn','raised','venture capital','private equity','vc round','acquisition','acquires','merger','takeover','buyout','stake sale','digital india','tech stocks','zomato','swiggy','paytm','ola','flipkart'],
   rates_rbi: ['repo rate','rbi','mpc','monetary policy','rate cut','rate hike','bps','crr','reverse repo','liquidity','rbi governor'],
   inflation: ['inflation','cpi','wpi','consumer price','food price','retail inflation','wholesale price'],
   growth:    ['gdp','growth','pmi','iip','manufacturing pmi','services pmi','industrial production','fiscal deficit','budget','gst','tax collection'],
   currency:  ['rupee','usd/inr','dollar','forex','exchange rate','currency','depreciation','appreciation','rbi intervention'],
   trade:     ['trade deficit','trade balance','exports','imports','current account','tariff','wto','crude oil','opec','brent'],
   markets:   ['nifty','sensex','bse','nse','stock market','share market','equity','fii','dii','mutual fund','ipo','sebi','bond yield','rally','sell-off','market cap','share price','listing'],
-  deals:     ['acquisition','acquires','merger','takeover','buyout','stake sale','divestment','private equity','venture capital','funding round','series a','series b','series c','unicorn','raised'],
   companies: ['quarterly results','q1 results','q2 results','q3 results','q4 results','revenue','profit','earnings','margin','ebitda','reliance','tata','adani','infosys','tcs','wipro','hdfc','icici','sbi'],
-  ai_tech:   ['artificial intelligence',' ai ','machine learning','generative ai','chatgpt','openai','gpt-','llm','data centre','data center','semiconductor','chip manufacturing','tech stocks','digital india','indian startup','saas'],
-  global:    ['fed rate','federal reserve','us inflation','us cpi','us economy','china exports','sanctions','export ban','trade war']
+  global:    ['fed rate','federal reserve','us inflation','us cpi','us economy','china exports','sanctions','export ban','trade war'],
+  // legacy fine-cat — kept so old Apps-Script categories still pass validation
+  deals:     ['acquisition','acquires','merger','takeover','buyout','stake sale','divestment','private equity','venture capital','funding round','series a','series b','series c','unicorn','raised'],
+  ai_tech:   ['artificial intelligence',' ai ','machine learning','generative ai','chatgpt','openai','gpt-','llm','data centre','data center','semiconductor','chip manufacturing','tech stocks','digital india','indian startup','saas']
 };
 
 var _NEWS_LABELS = {
+  personal_finance: 'PERSONAL FINANCE',
+  ai:        'AI',
+  startups:  'STARTUPS',
   rates_rbi: 'RBI & RATES',
   inflation: 'INFLATION',
   growth:    'GROWTH & POLICY',
@@ -1868,6 +2050,35 @@ var _NEWS_LABELS = {
   ai_tech:   'AI & TECH',
   global:    'GLOBAL'
 };
+
+// SUPER-CATEGORY MAPPING — what tab does each fine cat fall under?
+// The 5 tabs shown in the UI: all, economy, ai, startups, personal_finance
+var _NEWS_SUPERCAT = {
+  personal_finance: 'personal_finance',
+  ai:               'ai',
+  ai_tech:          'ai',           // legacy alias
+  startups:         'startups',
+  deals:            'startups',     // legacy alias — fold deals into startups
+  rates_rbi:        'economy',
+  inflation:        'economy',
+  growth:           'economy',
+  currency:         'economy',
+  trade:            'economy',
+  markets:          'economy',
+  companies:        'economy',
+  global:           'economy'
+};
+
+var _SUPER_LABELS = {
+  all:              'ALL',
+  economy:          'ECONOMY',
+  ai:               'AI',
+  startups:         'STARTUPS',
+  personal_finance: 'PERSONAL FINANCE'
+};
+
+// Order in which super-cat tabs appear
+var _SUPER_ORDER = ['all', 'economy', 'ai', 'startups', 'personal_finance'];
 
 var _allNewsTagged = [];
 var _activeNewsCat = 'all';
@@ -1915,62 +2126,91 @@ function _tagAndShowNews(newsArr) {
     var dt  = r['Date']     || r['date']   || r[keys[1]] || '';
     var src = r['Source']   || r['source'] || r[keys[2]] || '';
     var lnk = r['Link']     || r['URL']    || r['link']  || r[keys[3]] || '#';
-    // PREFER the Category column written by Apps Script
     var cat = (r['Category'] || r['category'] || r[keys[4]] || '').toString().trim().toLowerCase();
 
-    // If no category from sheet, fall back to client-side filter+categorise
     if (!cat) {
       var low = _normalise(hl + ' ' + src);
       if (!_passesRelevanceGate(low)) { dropped++; return null; }
       cat = _categoriseHeadline(low);
       if (!cat) { dropped++; return null; }
     } else {
-      // Validate the sheet category — must be one of our known buckets
       if (!_NEWS_LABELS[cat]) { dropped++; return null; }
     }
 
-    return { headline:hl, source:src, date:dt, link:lnk, cat:cat };
+    // Derive super-cat from fine cat for the new 5-tab UI
+    var superCat = _NEWS_SUPERCAT[cat] || 'economy';
+
+    return { headline:hl, source:src, date:dt, link:lnk, cat:cat, superCat:superCat };
   }).filter(function(x){ return x !== null; });
 
   console.log('News: kept ' + _allNewsTagged.length + ' / ' + newsArr.length + ' (dropped ' + dropped + ')');
 
+  // Count by super-cat
   var counts = { all: _allNewsTagged.length };
-  Object.keys(_NEWS_CATS).forEach(function(c) {
-    counts[c] = _allNewsTagged.filter(function(a){ return a.cat===c; }).length;
+  _SUPER_ORDER.forEach(function(sc) {
+    if (sc === 'all') return;
+    counts[sc] = _allNewsTagged.filter(function(a){ return a.superCat === sc; }).length;
   });
 
+  // Render the tab bar (newspaper-style: underline on active, no boxes)
   if (bar) {
-    var btns = ['<button onclick="_filterNewsCat(\'all\',this)" data-cat="all" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:6px 14px;background:' + (_activeNewsCat==='all'?'var(--accent)':'var(--bg3)') + ';color:' + (_activeNewsCat==='all'?'#fff':'var(--text2)') + ';border:1px solid var(--border);cursor:pointer;font-weight:600;">ALL ' + counts.all + '</button>'];
-    Object.keys(_NEWS_CATS).forEach(function(c) {
-      if (counts[c] === 0) return;
-      var active = c === _activeNewsCat;
-      btns.push('<button onclick="_filterNewsCat(\'' + c + '\',this)" data-cat="' + c + '" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:6px 14px;background:' + (active?'var(--accent)':'var(--bg3)') + ';color:' + (active?'#fff':'var(--text2)') + ';border:1px solid var(--border);cursor:pointer;">' + _NEWS_LABELS[c] + ' ' + counts[c] + '</button>');
+    var btns = _SUPER_ORDER.map(function(sc) {
+      var n = counts[sc] || 0;
+      var active = sc === _activeNewsCat;
+      var borderBottom = active ? '2px solid var(--accent)' : '2px solid transparent';
+      var color       = active ? 'var(--ink)' : 'var(--text3)';
+      var fontWeight  = active ? '700' : '500';
+      return '<button onclick="_filterNewsCat(\'' + sc + '\',this)" data-cat="' + sc + '" ' +
+             'style="font-family:var(--sans);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;' +
+             'padding:14px 20px;background:transparent;border:none;border-bottom:' + borderBottom + ';' +
+             'color:' + color + ';cursor:pointer;font-weight:' + fontWeight + ';transition:all 0.15s;margin-bottom:-1px;">' +
+             _SUPER_LABELS[sc] +
+             '<span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:6px;font-weight:500;">' + n + '</span>' +
+             '</button>';
     });
     bar.innerHTML = btns.join('');
   }
 
+  // If active tab has no items, fall back to All
   if (_activeNewsCat !== 'all' && (counts[_activeNewsCat] || 0) === 0) {
     _activeNewsCat = 'all';
   }
   _renderNewsCatGrid(_activeNewsCat);
 }
 
-function _filterNewsCat(cat, btn) {
-  _activeNewsCat = cat;
-  document.querySelectorAll('[data-cat]').forEach(function(b){ b.style.background='var(--bg3)'; b.style.color='var(--text2)'; });
-  if (btn) { btn.style.background='var(--accent)'; btn.style.color='#fff'; }
-  _renderNewsCatGrid(cat);
+function _filterNewsCat(superCat, btn) {
+  _activeNewsCat = superCat;
+  // Re-style all tab buttons
+  document.querySelectorAll('[data-cat]').forEach(function(b) {
+    var sc = b.getAttribute('data-cat');
+    var active = sc === superCat;
+    b.style.borderBottom = active ? '2px solid var(--accent)' : '2px solid transparent';
+    b.style.color = active ? 'var(--ink)' : 'var(--text3)';
+    b.style.fontWeight = active ? '700' : '500';
+  });
+  _renderNewsCatGrid(superCat);
 }
 
-function _renderNewsCatGrid(cat) {
-  var filtered = cat==='all' ? _allNewsTagged : _allNewsTagged.filter(function(a){ return a.cat===cat; });
+function _renderNewsCatGrid(superCat) {
+  var filtered = superCat === 'all'
+    ? _allNewsTagged
+    : _allNewsTagged.filter(function(a){ return a.superCat === superCat; });
+
+  // Sort newest first
+  filtered = filtered.slice().sort(function(a, b) {
+    var da = new Date(a.date), db = new Date(b.date);
+    if (isNaN(da.getTime())) return 1;
+    if (isNaN(db.getTime())) return -1;
+    return db - da;
+  });
+
   var grid = document.getElementById('news-grid');
   if (!grid) return;
   if (!filtered.length) {
     grid.innerHTML = '<div style="grid-column:span 2;padding:40px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">NO ARTICLES IN THIS CATEGORY YET</div>';
     return;
   }
-  grid.innerHTML = filtered.slice(0,20).map(function(a) {
+  grid.innerHTML = filtered.slice(0, 30).map(function(a) {
     var ds = '';
     try { ds = a.date ? new Date(a.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : ''; } catch(e) {}
     return '<a class="news-card" href="' + a.link + '" target="_blank">' +
@@ -1979,103 +2219,6 @@ function _renderNewsCatGrid(cat) {
       '<div class="news-date">' + ds + '</div>' +
     '</a>';
   }).join('');
-}
-
-// ── FLOWCHART ────────────────────────────────────────────────
-async function generateFlowchart() {
-  var btn    = document.getElementById('comic-btn');
-  var strip  = document.getElementById('comic-strip');
-  var footer = document.getElementById('comic-footer');
-  if (btn) { btn.textContent = '...'; btn.disabled = true; }
-  strip.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">GENERATING STORY...</div>';
-
-  var headlines = _allNewsTagged.slice(0,12).map(function(a){ return a.headline; }).filter(Boolean);
-  if (!headlines.length) {
-    strip.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:1px;">NO HEADLINES LOADED YET</div>';
-    if (btn) { btn.textContent = '↻ REFRESH'; btn.disabled = false; }
-    return;
-  }
-
-  var cpiV   = parseFloat(((DATA.cpi||[]).slice(-1)[0]||{})['CPI_Headline']||0)||null;
-  var repo   = parseFloat(((DATA.rbi||[]).slice(-1)[0]||{})['Repo_Rate']||0)||null;
-  var usdinr = parseFloat(((DATA.forex||[]).slice(-1)[0]||{})['USDINR']||0)||null;
-
-  var hlList = headlines.slice(0,10).map(function(h,i){ return (i+1)+'. '+h; }).join('\n');
-  var ctx = 'CPI '+(cpiV?cpiV.toFixed(2)+'%':'N/A')+' | Repo '+(repo?repo+'%':'N/A')+' | USD/INR '+(usdinr?usdinr.toFixed(2):'N/A');
-  var prompt = 'You are an economics journalist. From these headlines pick the 2 most significant ones affecting the Indian economy.\n\nHeadlines:\n' + hlList + '\n\nMacro context: ' + ctx + '\n\nFor each headline create a 4-step cause-and-effect chain showing the impact on an everyday Indian person.\n\nReturn ONLY valid JSON no markdown:\n{"stories":[{"headline":"text","emoji":"emoji","category":"SHORT LABEL","wit":"one witty plain-English sentence","steps":[{"step":1,"icon":"emoji","title":"What happened","desc":"12 words max"},{"step":2,"icon":"emoji","title":"Immediate effect","desc":"12 words max"},{"step":3,"icon":"emoji","title":"Ripple effect","desc":"12 words max"},{"step":4,"icon":"emoji","title":"Your wallet","desc":"12 words max"}]}]}';
-
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, messages:[{ role:'user', content:prompt }] })
-    });
-    var data = await res.json();
-    var raw = (data.content && data.content[0] ? data.content[0].text : '').trim();
-    var match = raw.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('no json');
-    var parsed = JSON.parse(match[0]);
-    _renderFlowchart(parsed.stories || []);
-    if (footer) footer.textContent = 'GENERATED ' + new Date().toLocaleTimeString('en-IN') + ' · CLAUDE AI · ' + headlines.length + ' HEADLINES';
-  } catch(e) {
-    console.error('Flowchart:', e);
-    _renderFlowchart(_fallbackStories());
-    if (footer) footer.textContent = 'STATIC STORY · CLICK REFRESH TO RETRY';
-  }
-  if (btn) { btn.textContent = '↻ REFRESH'; btn.disabled = false; }
-}
-
-function _renderFlowchart(stories) {
-  var strip = document.getElementById('comic-strip');
-  if (!stories || !stories.length) return;
-  var accents = ['var(--accent)', '#00d084'];
-  strip.innerHTML = stories.map(function(story, si) {
-    var accent = accents[si % accents.length];
-    return '<div style="border-bottom:1px solid var(--border);padding:18px 20px;background:var(--bg2);">' +
-      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">' +
-        '<span style="font-size:24px;flex-shrink:0;">' + (story.emoji||'📰') + '</span>' +
-        '<div>' +
-          '<div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:' + accent + ';margin-bottom:3px;">' + (story.category||'') + '</div>' +
-          '<div style="font-family:var(--sans);font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px;">' + (story.headline||'') + '</div>' +
-          '<div style="font-family:var(--sans);font-size:12px;color:var(--text2);font-style:italic;">' + (story.wit||'') + '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);background:var(--bg);">' +
-        (story.steps||[]).map(function(step, i) {
-          return '<div style="padding:14px 12px;' + (i<3?'border-right:1px solid var(--border);':'') + 'position:relative;">' +
-            '<div style="font-size:22px;margin-bottom:8px;">' + (step.icon||'→') + '</div>' +
-            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:' + accent + ';margin-bottom:4px;">STEP ' + (step.step||i+1) + '</div>' +
-            '<div style="font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text);margin-bottom:4px;">' + (step.title||'') + '</div>' +
-            '<div style="font-family:var(--sans);font-size:11px;color:var(--text2);line-height:1.5;">' + (step.desc||'') + '</div>' +
-            (i<3 ? '<div style="position:absolute;right:-9px;top:50%;transform:translateY(-50%);width:16px;height:16px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;z-index:2;">›</div>' : '') +
-          '</div>';
-        }).join('') +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function _fallbackStories() {
-  var repo   = parseFloat(((DATA.rbi||[]).slice(-1)[0]||{})['Repo_Rate']||0)||6.0;
-  var usdinr = parseFloat(((DATA.forex||[]).slice(-1)[0]||{})['USDINR']||0)||84.4;
-  return [
-    { headline:'RBI cuts repo to '+repo+'%', emoji:'🏦', category:'RBI POLICY',
-      wit:'The central bank made money cheaper — here is how that travels to your life.',
-      steps:[
-        {step:1,icon:'🏦',title:'RBI CUTS',     desc:'Repo at '+repo+'%, borrowing costs drop'},
-        {step:2,icon:'📉',title:'BANKS FOLLOW',  desc:'Home and car loan rates start declining'},
-        {step:3,icon:'🏗',title:'SPENDING UP',   desc:'Cheap credit boosts real estate and autos'},
-        {step:4,icon:'💳',title:'YOUR EMI DROPS',desc:'Monthly payments fall, more cash for you'},
-      ]},
-    { headline:'Rupee at '+usdinr.toFixed(1)+' per dollar', emoji:'💱', category:'CURRENCY',
-      wit:'A softer rupee — exporters cheer, importers wince, travellers sigh.',
-      steps:[
-        {step:1,icon:'📊',title:'RUPEE SOFTENS',  desc:'Rs '+usdinr.toFixed(0)+' per dollar near recent lows'},
-        {step:2,icon:'🛢',title:'IMPORTS COSTLIER',desc:'Oil, gold and electronics get pricier'},
-        {step:3,icon:'📦',title:'EXPORTERS GAIN', desc:'IT and textile firms earn more in rupees'},
-        {step:4,icon:'✈',title:'TRAVEL COSTS UP', desc:'Your US trip just got more expensive'},
-      ]}
-  ];
 }
 
 // ── ENHANCED OPINIONS ───────────────────────────────────────
@@ -2205,12 +2348,9 @@ async function _generateOpTakeaways() {
 // ── STORY TAB RENDER ─────────────────────────────────────────
 // ── STORY PAGE — supports both row-based and key-value formats ──
 function _renderStory() {
-  var el = document.getElementById('story-content');
-  if (!el) return;
+  // Story tab section was removed, but other features (metric cards, dollar passport)
+  // still read key-value pairs from the Story tab. Build window.STORY_KV here.
   var story = DATA.story || [];
-
-  // Build a key-value lookup if Story tab is structured that way
-  // (first column = key, second column = value)
   var STORY_KV = {};
   story.forEach(function(r) {
     var keys = Object.keys(r);
@@ -2220,47 +2360,7 @@ function _renderStory() {
       STORY_KV[k] = String(v).trim();
     }
   });
-  // Make available globally for other functions
   window.STORY_KV = STORY_KV;
-
-  // Try to read s1_bullet_1 ... s1_bullet_8 from Story tab
-  var bullets = [];
-  for (var i = 1; i <= 8; i++) {
-    var v = STORY_KV['s1_bullet_' + i];
-    if (v) bullets.push(v);
-  }
-
-  // If no key-value bullets, fall back to original behavior (each row is a bullet)
-  if (bullets.length === 0) {
-    if (!story.length) {
-      el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;padding:40px;">ADD BULLETS TO STORY TAB IN YOUR SHEET<br><br>Format: column A = key (e.g. s1_bullet_1), column B = value</div>';
-      return;
-    }
-    bullets = story.map(function(r) {
-      var vals = Object.values(r).slice(1).filter(function(v){ return v !== null && v !== undefined && String(v).trim() !== ''; });
-      return vals.join(' — ');
-    }).filter(function(s){ return s.length > 0; });
-  }
-
-  // Get last_updated if present
-  var lastUpdated = STORY_KV['last_updated'] || STORY_KV['Last_Updated'] || new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
-
-  el.innerHTML =
-    '<div style="font-family:var(--serif);font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;">The Macro Story Today</div>' +
-    '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1.5px;margin-bottom:8px;">HOW TODAY\'S DATA CONNECTS TO YOUR LIFE</div>' +
-    '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;padding:10px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--border);margin-bottom:24px;display:flex;justify-content:space-between;">' +
-      '<span>LAST UPDATED ' + _escapeHtml(lastUpdated).toUpperCase() + '</span>' +
-      '<span>AUTO-REFRESHES FROM SHEET</span>' +
-    '</div>' +
-    bullets.map(function(b, i) {
-      return '<div style="display:flex;gap:24px;padding:24px 0;border-bottom:1px solid var(--border);align-items:flex-start;">' +
-        '<div style="font-family:var(--serif);font-size:48px;font-style:italic;font-weight:700;color:var(--accent);line-height:0.9;min-width:70px;letter-spacing:-2px;">' + String(i+1).padStart(2,'0') + '</div>' +
-        '<div style="font-family:var(--bserif,Georgia,serif);font-size:18px;line-height:1.55;color:var(--text);flex:1;">' + _highlightNumbers(_escapeHtml(b)) + '</div>' +
-      '</div>';
-    }).join('') +
-    '<div style="margin-top:32px;padding-top:20px;border-top:2px solid var(--ink);font-family:var(--bserif,Georgia,serif);font-style:italic;font-size:13px;color:var(--text3);text-align:center;">' +
-      (bullets.length && STORY_KV['s1_bullet_1'] ? 'Synthesis written by Claude based on the latest data. Stored in your sheet, refreshes on every page load.' : 'Showing bullets from Story tab. Use keys s1_bullet_1 to s1_bullet_8 in column A and your text in column B for richer formatting.') +
-    '</div>';
 }
 
 // Helper: escape HTML
@@ -2503,7 +2603,30 @@ function _renderFeaturedNews() {
 
   // If no Story-tab featured items, fall back to top 6 from raw news data
   if (featured.length === 0) {
-    var newsArr = (DATA.news || []).slice(0, 6);
+    // Sort by date desc, prefer same-day stories first
+    var allNews = (DATA.news || []).slice().sort(function(a, b) {
+      return new Date(b['Date'] || b['date']) - new Date(a['Date'] || a['date']);
+    });
+    // Identify latest day
+    var newsArr = [];
+    if (allNews.length) {
+      var latestDate = new Date(allNews[0]['Date'] || allNews[0]['date']);
+      var latestDay = latestDate.toISOString().slice(0,10);  // YYYY-MM-DD
+      // Get all news from latest day
+      var sameDay = allNews.filter(function(n) {
+        var d = new Date(n['Date'] || n['date']);
+        return !isNaN(d.getTime()) && d.toISOString().slice(0,10) === latestDay;
+      });
+      // If fewer than 6 same-day stories, pad with next-most-recent
+      newsArr = sameDay.slice(0, 6);
+      if (newsArr.length < 6) {
+        var others = allNews.filter(function(n) {
+          var d = new Date(n['Date'] || n['date']);
+          return !isNaN(d.getTime()) && d.toISOString().slice(0,10) !== latestDay;
+        });
+        newsArr = newsArr.concat(others.slice(0, 6 - newsArr.length));
+      }
+    }
     if (!newsArr.length) {
       el.innerHTML = '<div style="padding:32px;background:var(--bg2);border:1px dashed var(--border2);text-align:center;font-family:var(--bserif,Georgia,serif);font-style:italic;color:var(--text3);"><strong style="color:var(--text);font-style:normal;font-family:var(--sans);">No featured news yet.</strong><br><br>Add to Story tab — keys like <code style="background:var(--bg3);padding:1px 6px;font-family:var(--mono);font-size:11px;">s3_news_1_headline</code>, <code style="background:var(--bg3);padding:1px 6px;font-family:var(--mono);font-size:11px;">s3_news_1_what</code>, <code style="background:var(--bg3);padding:1px 6px;font-family:var(--mono);font-size:11px;">s3_news_1_metrics</code>, <code style="background:var(--bg3);padding:1px 6px;font-family:var(--mono);font-size:11px;">s3_news_1_story</code>, <code style="background:var(--bg3);padding:1px 6px;font-family:var(--mono);font-size:11px;">s3_news_1_watch</code></div>';
       return;
@@ -3035,6 +3158,485 @@ function _renderSalaryGap() {
       rowHTML('1-YEAR VIEW', salary1y, inflation1y, realGain1y) +
       rowHTML('5-YEAR VIEW', salary5y, inflation5y, realGain5y) +
     '</div>';
+}
+
+
+// ════════════════════════════════════════════════════════════
+// WHAT CHANGED THIS MONTH — month-on-month deltas on key metrics
+// Replaces the old four-mini-chart preview block on Overview
+// ════════════════════════════════════════════════════════════
+function _renderWhatChanged() {
+  var el = document.getElementById('what-changed-block');
+  if (!el) return;
+
+  // Helpers for pulling latest two data points
+  function last2(arr, valFn) {
+    if (!arr || arr.length < 2) return null;
+    var prev = valFn(arr[arr.length - 2]);
+    var now  = valFn(arr[arr.length - 1]);
+    if (prev === null || now === null || isNaN(prev) || isNaN(now)) return null;
+    return { now: now, prev: prev, delta: now - prev };
+  }
+  function cpiVal(r)   { var v = r['CPI_Headline'] || r['Headline']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function gdpVal(r)   { var v = r['GDP_Growth_YoY_%'] || r['GDP_Growth_YoY_percent'] || r['GDP%']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function repoVal(r)  { var v = r['Repo_Rate'] || r['Repo Rate']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function fxVal(r)    { var v = r['Forex_Reserves_USD_Bn']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function usdVal(r)   { var v = r['USD/INR'] || r['US Dollar'] || r['USDINR'] || r['Interbank Close Rate']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function pmiMfgVal(r){ var v = r['Manufacturing_PMI']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function tradeVal(r) { var v = r['Trade_Balance_USD_Bn'] || r['Trade Balance']; return v != null && v !== '' ? parseFloat(v) : null; }
+  function unempVal(r) { var v = r['Unemployment_Rate_%']; return v != null && v !== '' ? parseFloat(v) : null; }
+
+  // Build the metric cards
+  // Each card has: label, the change story in plain English, a verdict, a colour
+  // 'good' is from the reader's pocket POV — falling CPI is good, weaker rupee is bad, more reserves is good, etc.
+  var metrics = [
+    {
+      key: 'cpi',
+      label: 'CPI INFLATION',
+      data: last2(DATA.cpi, cpiVal),
+      higherIsBad: true,
+      unit: '%',
+      tellStory: function(d) {
+        var dir = d.delta > 0 ? 'rose' : d.delta < 0 ? 'eased' : 'held flat';
+        var bps = Math.abs(d.delta * 100).toFixed(0);
+        if (d.delta === 0) return 'Stayed at ' + d.now.toFixed(2) + '%.';
+        return 'Prices ' + dir + ' to <strong>' + d.now.toFixed(2) + '%</strong>, ' + bps + ' bps from ' + d.prev.toFixed(2) + '%.';
+      }
+    },
+    {
+      key: 'usdinr',
+      label: 'RUPEE vs DOLLAR',
+      data: last2(DATA.usdinr || DATA.forex, usdVal),
+      higherIsBad: true,
+      unit: '',
+      tellStory: function(d) {
+        var dir = d.delta > 0 ? 'weakened to' : 'strengthened to';
+        var pct = Math.abs(d.delta / d.prev * 100).toFixed(2);
+        return 'Rupee ' + dir + ' <strong>₹' + d.now.toFixed(2) + '</strong>/dollar, ' + pct + '% from last reading.';
+      }
+    },
+    {
+      key: 'forex',
+      label: 'FOREX RESERVES',
+      data: last2(DATA.forex, fxVal),
+      higherIsBad: false,
+      unit: 'B',
+      tellStory: function(d) {
+        var dir = d.delta > 0 ? 'added' : d.delta < 0 ? 'lost' : 'held';
+        var amt = Math.abs(d.delta).toFixed(1);
+        if (d.delta === 0) return 'Reserves unchanged at $' + d.now.toFixed(0) + 'B.';
+        return 'RBI ' + dir + ' <strong>$' + amt + 'B</strong>, taking reserves to $' + d.now.toFixed(0) + 'B.';
+      }
+    },
+    {
+      key: 'repo',
+      label: 'REPO RATE',
+      data: last2(DATA.rbi, repoVal),
+      higherIsBad: null,
+      unit: '%',
+      tellStory: function(d) {
+        if (d.delta === 0) return 'MPC held at <strong>' + d.now.toFixed(2) + '%</strong>. No change in cost of borrowing.';
+        var dir = d.delta > 0 ? 'hiked' : 'cut';
+        var bps = Math.abs(d.delta * 100).toFixed(0);
+        return 'RBI ' + dir + ' the repo rate by ' + bps + ' bps to <strong>' + d.now.toFixed(2) + '%</strong>.';
+      }
+    },
+    {
+      key: 'pmi',
+      label: 'MANUFACTURING PMI',
+      data: last2(DATA.pmi, pmiMfgVal),
+      higherIsBad: false,
+      unit: '',
+      tellStory: function(d) {
+        var zone = d.now >= 50 ? 'expansion' : 'contraction';
+        var dir  = d.delta > 0 ? 'firmer' : 'softer';
+        return 'Factories ' + dir + ' at <strong>' + d.now.toFixed(1) + '</strong> — well in ' + zone + ' territory.';
+      }
+    },
+    {
+      key: 'trade',
+      label: 'TRADE BALANCE',
+      data: last2(DATA.trade, tradeVal),
+      higherIsBad: false,
+      unit: 'B',
+      tellStory: function(d) {
+        var sign = d.now < 0 ? '-$' : '$';
+        var dir = d.delta > 0 ? 'narrowed' : 'widened';
+        return 'Trade deficit ' + dir + ' to <strong>' + sign + Math.abs(d.now).toFixed(1) + 'B</strong> from ' + (d.prev < 0 ? '-$' : '$') + Math.abs(d.prev).toFixed(1) + 'B.';
+      }
+    }
+  ];
+
+  // Only render metrics that have valid data
+  var renderable = metrics.filter(function(m) { return m.data !== null; });
+
+  if (renderable.length === 0) {
+    el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;padding:24px;">Not enough history yet — need at least 2 data points per metric</div>';
+    return;
+  }
+
+  // Build cards in a responsive grid
+  var cards = renderable.map(function(m) {
+    var d = m.data;
+    var arrow, color, bg;
+    if (d.delta === 0) {
+      arrow = '→'; color = 'var(--text3)'; bg = 'var(--bg3)';
+    } else if (m.higherIsBad === true) {
+      // higher = bad
+      var goingBad = d.delta > 0;
+      arrow = d.delta > 0 ? '↑' : '↓';
+      color = goingBad ? 'var(--accent)' : 'var(--green)';
+      bg = goingBad ? 'rgba(204,34,0,0.07)' : 'rgba(26,107,90,0.07)';
+    } else if (m.higherIsBad === false) {
+      // higher = good
+      var goingGood = d.delta > 0;
+      arrow = d.delta > 0 ? '↑' : '↓';
+      color = goingGood ? 'var(--green)' : 'var(--accent)';
+      bg = goingGood ? 'rgba(26,107,90,0.07)' : 'rgba(204,34,0,0.07)';
+    } else {
+      arrow = d.delta > 0 ? '↑' : '↓'; color = 'var(--text2)'; bg = 'var(--bg3)';
+    }
+
+    return '<div style="background:var(--paper);border:1px solid var(--border);padding:18px 20px;position:relative;">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' +
+        '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;color:var(--text3);font-weight:600;">' + m.label + '</div>' +
+        '<div style="font-family:var(--mono);font-size:11px;color:' + color + ';background:' + bg + ';padding:2px 8px;border-radius:2px;font-weight:600;">' + arrow + ' ' + Math.abs(d.delta).toFixed(2).replace(/\.00$/,'') + (m.unit === '%' ? ' pp' : m.unit === 'B' ? 'B' : '') + '</div>' +
+      '</div>' +
+      '<div style="font-family:var(--bserif,Georgia,serif);font-size:14px;line-height:1.55;color:var(--text);">' + m.tellStory(d) + '</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:12px;">' + cards + '</div>';
+}
+
+
+// ════════════════════════════════════════════════════════════
+// DOLLAR PASSPORT — what ₹ buys abroad, now vs 5 years ago
+// ════════════════════════════════════════════════════════════
+function _renderDollarPassport() {
+  var el = document.getElementById('dollar-passport');
+  if (!el) return;
+
+  // Latest USD/INR
+  var usdRows = DATA.usdinr || DATA.forex || [];
+  var latestUsd = null;
+  for (var i = usdRows.length - 1; i >= 0; i--) {
+    var v = parseFloat(usdRows[i]['USD/INR'] || usdRows[i]['US Dollar'] || usdRows[i]['USDINR'] || usdRows[i]['Interbank Close Rate']);
+    if (!isNaN(v)) { latestUsd = v; break; }
+  }
+  if (!latestUsd) {
+    el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;padding:24px;">No USD/INR data</div>';
+    return;
+  }
+
+  // Override 5-year-ago USD/INR from Story tab, else default to 75
+  var STORY_KV = window.STORY_KV || {};
+  var usd5yr = parseFloat(STORY_KV['usdinr_5yr_ago']) || 75.0;
+
+  // Scenarios — same USD price, just multiplied by USD/INR then vs now
+  // Items where USD price is roughly stable, so the rupee impact is purely FX
+  var scenarios = [
+    {
+      icon: '🏨',
+      label: 'US hotel night',
+      usd: 250,
+      sub: 'Mid-range, NYC / SF',
+      detail: '$250 a night doesn\'t buy what it used to anywhere — but in rupees it\'s really started to bite.'
+    },
+    {
+      icon: '📱',
+      label: 'iPhone 16 Pro Max',
+      usd: 1199,
+      sub: 'US sticker price, before tax',
+      detail: 'A Pro Max bought stateside vs at an India Apple Store — partly tariff, partly rupee.'
+    },
+    {
+      icon: '🎓',
+      label: 'MS in US — 1 year',
+      usd: 60000,
+      sub: 'Tuition + living, mid-tier school',
+      detail: 'For a year of grad school abroad, the rupee cost has been the quiet killer of Indian study-abroad plans.'
+    },
+    {
+      icon: '✈️',
+      label: 'Round-trip Mumbai → NYC',
+      usd: 1400,
+      sub: 'Economy, peak season',
+      detail: 'Airline tickets are USD-priced. Rupee weakness shows up before you even land.'
+    },
+    {
+      icon: '👜',
+      label: 'Luxury handbag',
+      usd: 3500,
+      sub: 'Goyard / Chanel medium',
+      detail: 'Imported luxury feels the rupee directly. Even before Indian duty, the FX bill is heavy.'
+    },
+    {
+      icon: '🩺',
+      label: 'A week in US hospital',
+      usd: 35000,
+      sub: 'Average inpatient stay, no insurance',
+      detail: 'The kind of bill that ends Indian retiree visits early. Pure dollar exposure.'
+    }
+  ];
+
+  function fmtINR(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+
+  var pctRupeeWeaker = ((latestUsd - usd5yr) / usd5yr) * 100;
+
+  var cards = scenarios.map(function(s) {
+    var thenINR = s.usd * usd5yr;
+    var nowINR  = s.usd * latestUsd;
+    var deltaINR = nowINR - thenINR;
+    var deltaPct = (deltaINR / thenINR) * 100;
+    return '<div style="background:var(--paper);border:1px solid var(--border);padding:18px 20px;">' +
+      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">' +
+        '<div style="font-size:22px;line-height:1;flex-shrink:0;">' + s.icon + '</div>' +
+        '<div>' +
+          '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:2px;">' + _escapeHtml(s.label) + '</div>' +
+          '<div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text3);font-style:italic;">' + _escapeHtml(s.sub) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' +
+        '<div style="border-right:1px solid var(--border);padding-right:10px;">' +
+          '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);margin-bottom:3px;">5 YEARS AGO</div>' +
+          '<div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--text2);font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">' + fmtINR(thenINR) + '</div>' +
+          '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;">@ ₹' + usd5yr.toFixed(1) + '/$</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--accent);margin-bottom:3px;font-weight:600;">TODAY</div>' +
+          '<div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">' + fmtINR(nowINR) + '</div>' +
+          '<div style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:2px;font-weight:600;">+' + fmtINR(deltaINR) + ' (' + deltaPct.toFixed(0) + '%)</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="font-family:var(--bserif,Georgia,serif);font-size:12px;color:var(--text3);font-style:italic;line-height:1.5;">' + _escapeHtml(s.detail) + '</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:12px;">' + cards + '</div>' +
+    '<div style="margin-top:16px;padding:14px 18px;background:var(--bg2);border-left:3px solid var(--accent);">' +
+      '<div style="font-family:var(--bserif,Georgia,serif);font-size:13px;color:var(--text);line-height:1.6;">' +
+        'Rupee at <strong>₹' + latestUsd.toFixed(2) + '/$</strong> vs ₹' + usd5yr.toFixed(1) + '/$ five years ago — a <strong style="color:var(--accent);">' + pctRupeeWeaker.toFixed(0) + '%</strong> depreciation. The math is brutal: every dollar item costs that much more, before tariffs, before inflation, before anything else. ' +
+        '<span style="color:var(--text3);font-style:italic;">Override the 5-year-ago rate in your Story tab with key <code style="background:var(--bg3);padding:1px 5px;font-family:var(--mono);font-size:11px;font-style:normal;">usdinr_5yr_ago</code>.</span>' +
+      '</div>' +
+    '</div>';
+}
+
+
+// ════════════════════════════════════════════════════════════
+// FOREIGN CURRENCIES — four individual charts, each on its own scale
+// ════════════════════════════════════════════════════════════
+function _renderCurrenciesChart() {
+  const rows = (DATA.usdinr || []).slice(-90);
+  if (!rows.length) return;
+
+  const labels = rows.map(r => fmtDate(g(r, 'Date', 0)));
+
+  const series = [
+    { id: 'chart-usd-inr', label: 'USD/INR', color: '#cc2200', fill: 'rgba(204,34,0,0.06)',
+      data: rows.map(r => parseFloat(r['USD/INR'] || r['US Dollar'] || r['USDINR']) || null) },
+    { id: 'chart-gbp-inr', label: 'GBP/INR', color: '#1a6b5a', fill: 'rgba(26,107,90,0.06)',
+      data: rows.map(r => parseFloat(r['GBP/INR'] || r['Pound Sterling']) || null) },
+    { id: 'chart-eur-inr', label: 'EUR/INR', color: '#2a4a6b', fill: 'rgba(42,74,107,0.06)',
+      data: rows.map(r => parseFloat(r['EUR/INR'] || r['Euro']) || null) },
+    { id: 'chart-jpy-inr', label: 'JPY/INR', color: '#5a3a7a', fill: 'rgba(90,58,122,0.06)',
+      data: rows.map(r => parseFloat(r['JPY/INR'] || r['Japanese Yen']) || null) }
+  ];
+
+  series.forEach(function(s) {
+    if (!document.getElementById(s.id)) return;
+    const validVals = s.data.filter(v => v !== null);
+    if (!validVals.length) return;
+    const min = Math.min(...validVals);
+    const max = Math.max(...validVals);
+    const pad = (max - min) * 0.15 || 0.5;
+
+    makeChart(s.id, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{ label: s.label, data: s.data, borderColor: s.color, backgroundColor: s.fill,
+          tension: 0.3, borderWidth: 1.8, pointRadius: 0, fill: true }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => '₹ ' + (ctx.parsed.y !== null ? ctx.parsed.y.toFixed(4) : '--') } }
+        },
+        scales: {
+          x: { grid: { color: '#eee' }, ticks: { color: '#888', font: { family: 'DM Mono', size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+          y: {
+            min: Math.floor((min - pad) * 10) / 10,
+            max: Math.ceil((max + pad) * 10) / 10,
+            grid: { color: '#eee' },
+            ticks: { color: '#888', font: { family: 'DM Mono', size: 9 }, callback: v => '₹' + v }
+          }
+        }
+      }
+    });
+  });
+}
+
+
+// ════════════════════════════════════════════════════════════
+// ASSET ALLOCATION STRATEGY
+// Interactive: risk appetite × macro regime → suggested pie
+// ════════════════════════════════════════════════════════════
+
+var _AA_STATE = { risk: 'moderate' };
+
+// Base allocations by risk profile (must sum to 100)
+var _AA_BASE = {
+  conservative: [
+    { asset: 'Debt / FD / G-sec', pct: 60, color: '#5a7a9a', rationale: 'Capital preservation. Predictable returns near the risk-free rate.' },
+    { asset: 'Large-cap equity',  pct: 15, color: '#cc5544', rationale: 'Steady index exposure to participate in growth.' },
+    { asset: 'Gold',              pct: 15, color: '#d4a44a', rationale: 'Inflation hedge and crisis insurance.' },
+    { asset: 'Mid-cap equity',    pct: 10, color: '#e07050', rationale: 'A small slice for above-index returns.' }
+  ],
+  moderate: [
+    { asset: 'Large-cap equity',  pct: 30, color: '#cc5544', rationale: 'Core bluechip exposure for long-run growth.' },
+    { asset: 'Debt / FD / G-sec', pct: 35, color: '#5a7a9a', rationale: 'Stability anchor and dry powder for rebalancing.' },
+    { asset: 'Mid-cap equity',    pct: 15, color: '#e07050', rationale: 'Higher growth, manageable additional risk.' },
+    { asset: 'Small-cap equity',  pct: 10, color: '#b04030', rationale: 'Aggressive growth — wild swings, big payoffs.' },
+    { asset: 'Gold',              pct: 10, color: '#d4a44a', rationale: 'Diversifier that protects in equity downturns.' }
+  ],
+  aggressive: [
+    { asset: 'Large-cap equity',  pct: 30, color: '#cc5544', rationale: 'Compounding engine for a long runway.' },
+    { asset: 'Mid-cap equity',    pct: 25, color: '#e07050', rationale: 'Higher beta to ride the Indian growth story.' },
+    { asset: 'Small-cap equity',  pct: 20, color: '#b04030', rationale: 'Outsized upside if held through cycles.' },
+    { asset: 'Debt / FD / G-sec', pct: 15, color: '#5a7a9a', rationale: 'Just enough to avoid liquidating equities at the wrong time.' },
+    { asset: 'Gold',              pct: 10, color: '#d4a44a', rationale: 'Insurance, not investment.' }
+  ]
+};
+
+// Detect current macro regime from CPI trend + repo direction
+function _detectRegime() {
+  var cpi = DATA.cpi || [];
+  var rbi = DATA.rbi || [];
+
+  var cpiNow  = cpi.length > 0 ? parseFloat(cpi[cpi.length-1]['CPI_Headline'] || Object.values(cpi[cpi.length-1])[1]) : null;
+  var cpiPrev = cpi.length > 1 ? parseFloat(cpi[cpi.length-2]['CPI_Headline'] || Object.values(cpi[cpi.length-2])[1]) : null;
+  var cpi3    = cpi.length > 2 ? parseFloat(cpi[cpi.length-3]['CPI_Headline'] || Object.values(cpi[cpi.length-3])[1]) : null;
+
+  var repoNow  = rbi.length > 0 ? parseFloat(rbi[rbi.length-1]['Repo_Rate'] || Object.values(rbi[rbi.length-1])[1]) : null;
+  var repoPrev = rbi.length > 1 ? parseFloat(rbi[rbi.length-2]['Repo_Rate'] || Object.values(rbi[rbi.length-2])[1]) : null;
+
+  var cpiRising  = cpiNow !== null && cpiPrev !== null && cpiNow > cpiPrev;
+  var cpiFalling = cpiNow !== null && cpiPrev !== null && cpiNow < cpiPrev;
+  var cutting    = repoNow !== null && repoPrev !== null && repoNow < repoPrev;
+  var hiking     = repoNow !== null && repoPrev !== null && repoNow > repoPrev;
+
+  if (cutting && !cpiRising)
+    return { label: 'EASING — RISK ON', detail: 'Rates falling, inflation contained. Conditions favour equities; debt yields will trend lower so lock in longer durations.', tilt: 'pro-equity' };
+  if (cutting && cpiRising)
+    return { label: 'TRANSITION', detail: 'Rates eased while inflation firms up. The cutting cycle may be near its end. Hold a balanced stance.', tilt: 'neutral' };
+  if (hiking || (cpiRising && repoNow >= 6))
+    return { label: 'TIGHTENING', detail: 'Rates flat-to-rising, prices firming. Equities face a higher cost of capital. Lean defensive — more debt, more gold.', tilt: 'defensive' };
+  if (cpiNow !== null && cpiNow < 4)
+    return { label: 'STABLE — LOW INFLATION', detail: 'Inflation comfortably below target, rates anchored. Continue with the base allocation; the macro isn\'t forcing a shift.', tilt: 'neutral' };
+  return { label: 'NEUTRAL', detail: 'No clear signal in either direction. Stick with the base allocation matching your risk appetite.', tilt: 'neutral' };
+}
+
+// Apply regime tilt to base allocation (sum-preserving)
+function _applyRegimeTilt(base, tilt) {
+  var adj = base.map(function(a) { return Object.assign({}, a); });
+  if (tilt === 'pro-equity') {
+    // Move 5% from debt → large-cap
+    var debt = adj.find(function(a) { return a.asset.includes('Debt'); });
+    var lc   = adj.find(function(a) { return a.asset === 'Large-cap equity'; });
+    if (debt && lc && debt.pct >= 10) { debt.pct -= 5; lc.pct += 5; }
+  } else if (tilt === 'defensive') {
+    // Move 3% from small-cap → gold, 3% from mid-cap → debt
+    var sc = adj.find(function(a) { return a.asset === 'Small-cap equity'; });
+    var gold = adj.find(function(a) { return a.asset === 'Gold'; });
+    var mc = adj.find(function(a) { return a.asset === 'Mid-cap equity'; });
+    var debt2 = adj.find(function(a) { return a.asset.includes('Debt'); });
+    if (sc && gold && sc.pct >= 5) { sc.pct -= 3; gold.pct += 3; }
+    if (mc && debt2 && mc.pct >= 5) { mc.pct -= 3; debt2.pct += 3; }
+  }
+  return adj;
+}
+
+function _renderAssetAllocation() {
+  var pickerEl = document.getElementById('aa-risk-picker');
+  if (!pickerEl) return;
+
+  // Wire up risk buttons (once)
+  if (!pickerEl._wired) {
+    pickerEl.querySelectorAll('.aa-risk-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        _AA_STATE.risk = btn.getAttribute('data-risk');
+        pickerEl.querySelectorAll('.aa-risk-btn').forEach(function(b) { b.classList.remove('aa-active'); });
+        btn.classList.add('aa-active');
+        _aaPaint();
+      });
+    });
+    pickerEl._wired = true;
+  }
+  _aaPaint();
+}
+
+function _aaPaint() {
+  var regime = _detectRegime();
+  document.getElementById('aa-regime-label').textContent = regime.label;
+  document.getElementById('aa-regime-detail').textContent = regime.detail;
+
+  var base = _AA_BASE[_AA_STATE.risk];
+  var alloc = _applyRegimeTilt(base, regime.tilt);
+
+  // Risk description text
+  var riskDesc = {
+    conservative: 'Capital protection first. Bond-heavy with a small equity sleeve. Expect 7–9% returns with low volatility.',
+    moderate:     'A balanced mix — meaningful equity exposure with a debt cushion. Aiming for ~10–12% real returns with moderate volatility.',
+    aggressive:   'Wealth creation. Heavy equity tilt across market caps. Expect 12–15%+ over the long run with serious year-to-year swings.'
+  };
+  document.getElementById('aa-risk-description').textContent = riskDesc[_AA_STATE.risk];
+
+  // Render pie (SVG donut)
+  var svg = document.getElementById('aa-pie');
+  var size = 100, cx = 50, cy = 50, r = 38, innerR = 24;
+  var startAngle = -Math.PI / 2;  // start at top
+  var slices = '';
+  alloc.forEach(function(a) {
+    var angle = (a.pct / 100) * Math.PI * 2;
+    var endAngle = startAngle + angle;
+    var largeArc = angle > Math.PI ? 1 : 0;
+    var x1 = cx + r * Math.cos(startAngle);
+    var y1 = cy + r * Math.sin(startAngle);
+    var x2 = cx + r * Math.cos(endAngle);
+    var y2 = cy + r * Math.sin(endAngle);
+    var x3 = cx + innerR * Math.cos(endAngle);
+    var y3 = cy + innerR * Math.sin(endAngle);
+    var x4 = cx + innerR * Math.cos(startAngle);
+    var y4 = cy + innerR * Math.sin(startAngle);
+    var d = 'M ' + x1 + ',' + y1 +
+            ' A ' + r + ',' + r + ' 0 ' + largeArc + ' 1 ' + x2 + ',' + y2 +
+            ' L ' + x3 + ',' + y3 +
+            ' A ' + innerR + ',' + innerR + ' 0 ' + largeArc + ' 0 ' + x4 + ',' + y4 +
+            ' Z';
+    slices += '<path class="aa-slice" d="' + d + '" fill="' + a.color + '" stroke="var(--paper)" stroke-width="0.6"><title>' + a.asset + ': ' + a.pct + '%</title></path>';
+    startAngle = endAngle;
+  });
+  svg.innerHTML = slices;
+
+  // Render breakdown
+  var amount = 1000000;  // ₹10 lakh
+  var bd = document.getElementById('aa-breakdown');
+  bd.innerHTML = alloc.map(function(a) {
+    var amt = '₹' + Math.round(amount * a.pct / 100).toLocaleString('en-IN');
+    return '<div class="aa-row">' +
+      '<div class="aa-swatch" style="background:' + a.color + ';"></div>' +
+      '<div>' +
+        '<div class="aa-row-asset">' + _escapeHtml(a.asset) + '</div>' +
+        '<div class="aa-row-rationale">' + _escapeHtml(a.rationale) + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;">' +
+        '<div class="aa-row-pct">' + a.pct + '%</div>' +
+        '<div class="aa-row-amt">' + amt + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 </script>
 </body>
